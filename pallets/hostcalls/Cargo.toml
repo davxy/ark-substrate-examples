@@ -1,0 +1,36 @@
+[package]
+name = "pallet-ark-hostcalls"
+description = "A pallet showing usage of Arkworks primitives backed by Substrate host functions"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+codec = { workspace = true, features = ["derive"] }
+polkadot-sdk = { workspace = true, default-features = false, features = ["experimental", "runtime", "sp-crypto-ec-utils"] }
+scale-info = { features = ["derive"], workspace = true }
+sp-crypto-ec-utils = { workspace = true }
+# Arkworks deps
+ark-ec = { version = "0.5.0", default-features = false }
+ark-std = { version = "0.5.0", default-features = false }
+ark-scale = { version = "0.0.13", default-features = false, features = ["hazmat"] }
+ark-ed-on-bls12-381-bandersnatch = { version = "0.5.0", default-features = false }
+
+[features]
+default = ["std"]
+std = [
+  "codec/std",
+  "polkadot-sdk/std",
+  "scale-info/std",
+  "sp-crypto-ec-utils/std",
+	# Arkworks deps
+  "ark-ec/std",
+	"ark-std/std",
+  "ark-scale/std",
+	"ark-ed-on-bls12-381-bandersnatch/std",
+]

@@ -29,7 +29,7 @@ use polkadot_sdk::{
 };
 use std::sync::Arc;
 
-type HostFunctions = sp_io::SubstrateHostFunctions;
+type HostFunctions = (sp_io::SubstrateHostFunctions, sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch::host_calls::HostFunctions);
 
 #[docify::export]
 pub(crate) type FullClient =

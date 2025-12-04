@@ -1,16 +1,13 @@
 [package]
 name = "minimal-template-runtime"
 description = "A solochain runtime template built with Substrate, part of Polkadot Sdk."
-version = "0.0.0"
-license = "Unlicense"
+version.workspace = true
+license.workspace = true
 authors.workspace = true
 homepage.workspace = true
 repository.workspace = true
 edition.workspace = true
 publish = false
-
-[lints]
-workspace = true
 
 [dependencies]
 codec = { workspace = true }
@@ -26,7 +23,8 @@ scale-info = { workspace = true }
 serde_json = { workspace = true, default-features = false, features = ["alloc"] }
 
 # local pallet templates
-pallet-minimal-template = { workspace = true }
+pallet-minimal-template = { path = "../pallets/template", default-features = false}
+pallet-ark-hostcalls = { path = "../pallets/hostcalls", default-features = false }
 
 [build-dependencies]
 polkadot-sdk = { optional = true, workspace = true, features = ["substrate-wasm-builder"] }
@@ -35,8 +33,9 @@ polkadot-sdk = { optional = true, workspace = true, features = ["substrate-wasm-
 default = ["std"]
 std = [
 	"codec/std",
-	"pallet-minimal-template/std",
 	"polkadot-sdk/std",
 	"scale-info/std",
 	"serde_json/std",
+	"pallet-minimal-template/std",
+	"pallet-ark-hostcalls/std",
 ]

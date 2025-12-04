@@ -1,17 +1,18 @@
 [workspace.package]
 authors = ["Davide Galassi <davxy@datawok.net>"]
 edition = "2021"
-repository = "https://github.com/davxy/polkadot-arkworks-extensions"
 license = "MIT"
 version = "0.1.0"
+repository = "https://github.com/davxy/polkadot-arkworks-demo"
+homepage = "https://github.com/davxy/polkadot-arkworks-demo"
 
 [workspace]
 resolver = "2"
 members = [
-  # "node",
-  # "pallets/arkworks-ext",
-  # "runtime",
-  "pallets/template"
+  "node",
+  "runtime",
+  "pallets/template",
+  "pallets/hostcalls",
 ]
 
 [workspace.dependencies]
@@ -19,3 +20,10 @@ codec = { package = "parity-scale-codec", version = "3.7.5", default-features = 
 scale-info = { version = "2.11.6", default-features = false }
 polkadot-sdk = { git = "https://github.com/davxy/polkadot-sdk", default-features = false }
 sp-crypto-ec-utils = { git = "https://github.com/davxy/polkadot-sdk", default-features = false, features = ["all-curves"] }
+
+clap = { version = "4.5.13" }
+docify = { version = "0.2.9" }
+futures = { version = "0.3.31" }
+futures-timer = { version = "3.0.2" }
+jsonrpsee = { version = "0.24.10" }
+serde_json = { version = "1.0.132", default-features = false }
