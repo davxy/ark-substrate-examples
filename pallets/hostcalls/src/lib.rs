@@ -30,6 +30,19 @@ pub use pallet::*;
 const MSM_LEN: u32 = 10;
 // const SCALAR_WORDS: u32 = 3;
 
+const DEFAULT_WEIGHT: u64 = 10_000;
+
+pub fn ed_on_bls12_381_bandersnatch_msm_sw<C: SWCurveConfig>(
+    bases: Vec<u8>,
+    scalars: Vec<u8>,
+) -> DispatchResult {
+    use ark_ec::short_weierstrass::Affine;
+    let bases = ArkScale::<Vec<Affine<C>>>::decode(&mut bases.as_slice()).unwrap();
+    let scalars = ArkScale::<Vec<C::ScalarField>>::decode(&mut scalars.as_slice()).unwrap();
+    let _ = C::msm(&bases.0, &scalars.0);
+    Ok(())
+}
+
 #[frame::pallet]
 pub mod pallet {
 
@@ -48,57 +61,39 @@ pub mod pallet {
         // ---------------------------------------------
 
         #[pallet::call_index(44)]
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(0).ref_time())]
-        pub fn ark_ed_on_bls12_381_bandersnatch_msm_sw(
+        #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
+        pub fn ed_on_bls12_381_bandersnatch_msm_sw(
             _: OriginFor<T>,
             bases: Vec<u8>,
             scalars: Vec<u8>,
+            optimized: bool,
         ) -> DispatchResult {
-            let bases = ArkScale::<Vec<ark_ed_on_bls12_381_bandersnatch::SWAffine>>::decode(
-                &mut bases.as_slice(),
-            )
-            .unwrap();
-            let scalars =
-                ArkScale::<Vec<ScalarFieldFor<ark_ed_on_bls12_381_bandersnatch::SWAffine>>>::decode(
-                    &mut scalars.as_slice(),
+            if optimized {
+                ed_on_bls12_381_bandersnatch_msm_sw::<sub_ed_on_bls12_381_bandersnatch::SWConfig>(
+                    bases, scalars,
                 )
-                .unwrap();
-            let _ = <ark_ed_on_bls12_381_bandersnatch::SWConfig as SWCurveConfig>::msm(
-                &bases.0, &scalars.0,
-            );
-            Ok(())
+            } else {
+                ed_on_bls12_381_bandersnatch_msm_sw::<ark_ed_on_bls12_381_bandersnatch::SWConfig>(
+                    bases, scalars,
+                )
+            }
         }
 
         #[pallet::call_index(144)]
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(0).ref_time())]
-        pub fn rand_ark_ed_on_bls12_381_bandersnatch_msm_sw(
+        #[pallet::weight(Weight::from_all(10_000))]
+        pub fn ed_on_bls12_381_bandersnatch_msm_sw_rand(
             origin: OriginFor<T>,
+            items: u32,
+            optimized: bool,
         ) -> DispatchResult {
             let (bases, scalars) =
-                utils::make_msm_args::<ark_ed_on_bls12_381_bandersnatch::SWProjective>(MSM_LEN);
-            Self::ark_ed_on_bls12_381_bandersnatch_msm_sw(origin, bases.encode(), scalars.encode())
-        }
-
-        #[pallet::call_index(45)]
-        #[pallet::weight(10_000 + T::DbWeight::get().writes(0).ref_time())]
-        pub fn sub_ed_on_bls12_381_bandersnatch_msm_sw(
-            _: OriginFor<T>,
-            bases: Vec<u8>,
-            scalars: Vec<u8>,
-        ) -> DispatchResult {
-            let bases = ArkScale::<Vec<sub_ed_on_bls12_381_bandersnatch::SWAffine>>::decode(
-                &mut bases.as_slice(),
+                utils::make_msm_args::<ark_ed_on_bls12_381_bandersnatch::SWProjective>(items);
+            Self::ed_on_bls12_381_bandersnatch_msm_sw(
+                origin,
+                bases.encode(),
+                scalars.encode(),
+                optimized,
             )
-            .unwrap();
-            let scalars =
-                ArkScale::<Vec<ScalarFieldFor<sub_ed_on_bls12_381_bandersnatch::SWAffine>>>::decode(
-                    &mut scalars.as_slice(),
-                )
-                .unwrap();
-            let _ = <sub_ed_on_bls12_381_bandersnatch::SWConfig as SWCurveConfig>::msm(
-                &bases.0, &scalars.0,
-            );
-            Ok(())
         }
 
         #[pallet::call_index(46)]

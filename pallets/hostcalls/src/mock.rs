@@ -27,7 +27,7 @@ mod runtime {
     pub type System = frame_system::Pallet<Test>;
 
     #[runtime::pallet_index(1)]
-    pub type Arkworks = crate::Pallet<Test>;
+    pub type ArkHostcalls = crate::Pallet<Test>;
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig)]
