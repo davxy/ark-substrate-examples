@@ -17,16 +17,14 @@
 
 use crate::cli::Consensus;
 use futures::FutureExt;
-use minimal_template_runtime::{interface::OpaqueBlock as Block, RuntimeApi};
-use polkadot_sdk::{
-	sc_client_api::backend::Backend,
-	sc_executor::WasmExecutor,
-	sc_service::{error::Error as ServiceError, Configuration, TaskManager},
-	sc_telemetry::{Telemetry, TelemetryWorker},
-	sc_transaction_pool_api::OffchainTransactionPoolFactory,
-	sp_runtime::traits::Block as BlockT,
-	*,
-};
+use minimal_template_runtime::{opaque::Block, RuntimeApi};
+use sc_client_api::backend::Backend;
+use sc_consensus_manual_seal;
+use sc_executor::WasmExecutor;
+use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
+use sc_telemetry::{Telemetry, TelemetryWorker};
+use sc_transaction_pool_api::OffchainTransactionPoolFactory;
+use sp_runtime::traits::Block as BlockT;
 use std::sync::Arc;
 
 type HostFunctions = (sp_io::SubstrateHostFunctions, sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch::host_calls::HostFunctions);

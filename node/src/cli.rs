@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use polkadot_sdk::*;
+use sc_cli;
 
 #[derive(Debug, Clone)]
 pub enum Consensus {

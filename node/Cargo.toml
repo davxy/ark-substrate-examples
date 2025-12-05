@@ -15,7 +15,9 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
 clap = { features = ["derive"], workspace = true }
+docify = { version = "0.2.8", default-features = false }
 futures = { features = ["thread-pool"], workspace = true }
+futures-timer = { version = "3.0.2" }
 jsonrpsee = { features = ["server"], workspace = true }
 
 # substrate client
@@ -25,6 +27,7 @@ sc-client-api = { workspace = true, default-features = true }
 sc-consensus = { workspace = true, default-features = true }
 sc-consensus-aura = { workspace = true, default-features = true }
 sc-consensus-grandpa = { workspace = true, default-features = true }
+sc-consensus-manual-seal = { git = "https://github.com/paritytech/polkadot-sdk", default-features = true }
 sc-executor = { workspace = true, default-features = true }
 sc-network = { workspace = true, default-features = true }
 sc-offchain = { workspace = true, default-features = true }
@@ -34,6 +37,7 @@ sc-transaction-pool = { workspace = true, default-features = true }
 sc-transaction-pool-api = { workspace = true, default-features = true }
 sp-consensus-aura = { workspace = true, default-features = true }
 sp-core = { workspace = true, default-features = true }
+sp-crypto-ec-utils = { workspace = true, default-features = true }
 sp-genesis-builder = { workspace = true, default-features = true }
 
 # substrate primitives

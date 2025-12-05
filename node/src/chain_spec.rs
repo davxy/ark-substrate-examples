@@ -16,10 +16,8 @@
 // limitations under the License.
 
 use minimal_template_runtime::WASM_BINARY;
-use polkadot_sdk::{
-	sc_service::{ChainType, Properties},
-	*,
-};
+use sc_service::{ChainType, Properties};
+use sp_genesis_builder;
 
 /// This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec;

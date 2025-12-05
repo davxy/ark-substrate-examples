@@ -21,7 +21,8 @@ use crate::{
 	service,
 };
 use frame_benchmarking_cli::BenchmarkCmd;
-use polkadot_sdk::{sc_cli::SubstrateCli, sc_service::PartialComponents, *};
+use sc_cli::SubstrateCli;
+use sc_service::PartialComponents;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
@@ -117,7 +118,7 @@ pub fn run() -> sc_cli::Result<()> {
 		Some(Subcommand::ChainInfo(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			runner.sync_run(|config| {
-				cmd.run::<minimal_template_runtime::interface::OpaqueBlock>(&config)
+				cmd.run::<minimal_template_runtime::opaque::Block>(&config)
 			})
 		},
 		Some(Subcommand::Benchmark(cmd)) => {
