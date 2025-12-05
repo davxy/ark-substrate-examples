@@ -12,8 +12,8 @@ mod tests;
 
 mod utils;
 
-use frame::prelude::*;
-use polkadot_sdk::polkadot_sdk_frame as frame;
+use frame_support::pallet_prelude::*;
+use frame_system::pallet_prelude::*;
 
 use ark_ec::{short_weierstrass::SWCurveConfig, twisted_edwards::TECurveConfig, AffineRepr};
 use ark_scale::{hazmat::ArkScaleProjective, scale::Decode};
@@ -26,9 +26,6 @@ pub type ScalarFieldFor<AffineT> = <AffineT as AffineRepr>::ScalarField;
 type ArkScale<T> = ark_scale::ArkScale<T>;
 
 pub use pallet::*;
-
-const MSM_LEN: u32 = 10;
-// const SCALAR_WORDS: u32 = 3;
 
 const DEFAULT_WEIGHT: u64 = 10_000;
 
@@ -43,16 +40,16 @@ pub fn ed_on_bls12_381_bandersnatch_msm_sw<C: SWCurveConfig>(
     Ok(())
 }
 
-#[frame::pallet]
+#[frame_support::pallet]
 pub mod pallet {
 
     use super::*;
 
-    #[pallet::config]
-    pub trait Config: polkadot_sdk::frame_system::Config {}
-
     #[pallet::pallet]
     pub struct Pallet<T>(_);
+
+    #[pallet::config]
+    pub trait Config: frame_system::Config {}
 
     #[pallet::call]
     impl<T: Config> Pallet<T> {

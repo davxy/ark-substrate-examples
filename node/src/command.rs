@@ -20,6 +20,7 @@ use crate::{
 	cli::{Cli, Subcommand},
 	service,
 };
+use frame_benchmarking_cli::BenchmarkCmd;
 use polkadot_sdk::{sc_cli::SubstrateCli, sc_service::PartialComponents, *};
 
 impl SubstrateCli for Cli {
@@ -117,6 +118,30 @@ pub fn run() -> sc_cli::Result<()> {
 			let runner = cli.create_runner(cmd)?;
 			runner.sync_run(|config| {
 				cmd.run::<minimal_template_runtime::interface::OpaqueBlock>(&config)
+			})
+		},
+		Some(Subcommand::Benchmark(cmd)) => {
+			let runner = cli.create_runner(cmd)?;
+			runner.sync_run(|config| {
+				// This switch needs to be in the client, since the client decides
+				// which sub-commands it wants to support.
+				match cmd {
+					BenchmarkCmd::Pallet(cmd) => {
+						if !cfg!(feature = "runtime-benchmarks") {
+							return Err(
+								"Runtime benchmarking wasn't enabled when building the node. \
+							You can enable it with `--features runtime-benchmarks`."
+									.into(),
+							);
+						}
+						cmd.run_with_spec::<sp_runtime::traits::HashingFor<minimal_template_runtime::interface::Block>, ()>(Some(
+							config.chain_spec,
+						))
+					},
+					_ => {
+						return Err("Runtime benchmarking wasn't supported for {cmd:?}".into())					;
+					}
+				}
 			})
 		},
 		None => {

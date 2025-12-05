@@ -19,74 +19,78 @@ use polkadot_sdk::*;
 
 #[derive(Debug, Clone)]
 pub enum Consensus {
-	ManualSeal(u64),
-	InstantSeal,
-	None,
+    ManualSeal(u64),
+    InstantSeal,
+    None,
 }
 
 impl std::str::FromStr for Consensus {
-	type Err = String;
+    type Err = String;
 
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		Ok(if s == "instant-seal" {
-			Consensus::InstantSeal
-		} else if let Some(block_time) = s.strip_prefix("manual-seal-") {
-			Consensus::ManualSeal(block_time.parse().map_err(|_| "invalid block time")?)
-		} else if s.to_lowercase() == "none" {
-			Consensus::None
-		} else {
-			return Err("incorrect consensus identifier".into());
-		})
-	}
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(if s == "instant-seal" {
+            Consensus::InstantSeal
+        } else if let Some(block_time) = s.strip_prefix("manual-seal-") {
+            Consensus::ManualSeal(block_time.parse().map_err(|_| "invalid block time")?)
+        } else if s.to_lowercase() == "none" {
+            Consensus::None
+        } else {
+            return Err("incorrect consensus identifier".into());
+        })
+    }
 }
 
 #[derive(Debug, clap::Parser)]
 pub struct Cli {
-	#[command(subcommand)]
-	pub subcommand: Option<Subcommand>,
+    #[command(subcommand)]
+    pub subcommand: Option<Subcommand>,
 
-	#[clap(long, default_value = "manual-seal-3000")]
-	pub consensus: Consensus,
+    #[clap(long, default_value = "manual-seal-3000")]
+    pub consensus: Consensus,
 
-	#[clap(flatten)]
-	pub run: sc_cli::RunCmd,
+    #[clap(flatten)]
+    pub run: sc_cli::RunCmd,
 }
 
 #[derive(Debug, clap::Subcommand)]
 pub enum Subcommand {
-	/// Key management cli utilities
-	#[command(subcommand)]
-	Key(sc_cli::KeySubcommand),
+    /// Key management cli utilities
+    #[command(subcommand)]
+    Key(sc_cli::KeySubcommand),
 
-	/// Build a chain specification.
-	/// DEPRECATED: `build-spec` command will be removed after 1/04/2026. Use `export-chain-spec`
-	/// command instead.
-	#[deprecated(
-		note = "build-spec command will be removed after 1/04/2026. Use export-chain-spec command instead"
-	)]
-	BuildSpec(sc_cli::BuildSpecCmd),
+    /// Build a chain specification.
+    /// DEPRECATED: `build-spec` command will be removed after 1/04/2026. Use `export-chain-spec`
+    /// command instead.
+    #[deprecated(
+        note = "build-spec command will be removed after 1/04/2026. Use export-chain-spec command instead"
+    )]
+    BuildSpec(sc_cli::BuildSpecCmd),
 
-	/// Export the chain specification.
-	ExportChainSpec(sc_cli::ExportChainSpecCmd),
+    /// Export the chain specification.
+    ExportChainSpec(sc_cli::ExportChainSpecCmd),
 
-	/// Validate blocks.
-	CheckBlock(sc_cli::CheckBlockCmd),
+    /// Validate blocks.
+    CheckBlock(sc_cli::CheckBlockCmd),
 
-	/// Export blocks.
-	ExportBlocks(sc_cli::ExportBlocksCmd),
+    /// Export blocks.
+    ExportBlocks(sc_cli::ExportBlocksCmd),
 
-	/// Export the state of a given block into a chain spec.
-	ExportState(sc_cli::ExportStateCmd),
+    /// Export the state of a given block into a chain spec.
+    ExportState(sc_cli::ExportStateCmd),
 
-	/// Import blocks.
-	ImportBlocks(sc_cli::ImportBlocksCmd),
+    /// Import blocks.
+    ImportBlocks(sc_cli::ImportBlocksCmd),
 
-	/// Remove the whole chain.
-	PurgeChain(sc_cli::PurgeChainCmd),
+    /// Remove the whole chain.
+    PurgeChain(sc_cli::PurgeChainCmd),
 
-	/// Revert the chain to a previous state.
-	Revert(sc_cli::RevertCmd),
+    /// Revert the chain to a previous state.
+    Revert(sc_cli::RevertCmd),
 
-	/// Db meta columns information.
-	ChainInfo(sc_cli::ChainInfoCmd),
+    /// Db meta columns information.
+    ChainInfo(sc_cli::ChainInfoCmd),
+
+    /// Sub-commands concerned with benchmarking.
+    #[command(subcommand)]
+    Benchmark(frame_benchmarking_cli::BenchmarkCmd),
 }
