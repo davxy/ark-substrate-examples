@@ -6,21 +6,20 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use frame_support::pallet_prelude::*;
-use frame_system::pallet_prelude::*;
 
 // Re-export all pallet parts, this is needed to properly import the pallet into the runtime.
 pub use pallet::*;
 
 #[frame_support::pallet]
 pub mod pallet {
-	use super::*;
+    use super::*;
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+    #[pallet::pallet]
+    pub struct Pallet<T>(_);
 
-	#[pallet::config]
-	pub trait Config: frame_system::Config {}
+    #[pallet::config]
+    pub trait Config: frame_system::Config {}
 
-	#[pallet::storage]
-	pub type Value<T> = StorageValue<_, u32>;
+    #[pallet::storage]
+    pub type Value<T> = StorageValue<_, u32>;
 }
