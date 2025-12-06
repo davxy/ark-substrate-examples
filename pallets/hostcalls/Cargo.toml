@@ -28,6 +28,9 @@ ark-std = { version = "0.5.0", default-features = false }
 ark-scale = { version = "0.0.13", default-features = false, features = ["hazmat"] }
 ark-ed-on-bls12-381-bandersnatch = { version = "0.5.0", default-features = false }
 
+[dev-dependencies]
+sp-io = { workspace = true }
+
 [features]
 default = ["std"]
 std = [
@@ -37,6 +40,7 @@ std = [
 	"frame-system/std",
 	"scale-info/std",
 	"sp-crypto-ec-utils/std",
+	"sp-io/std",
 	# Arkworks deps
 	"ark-ec/std",
 	"ark-std/std",

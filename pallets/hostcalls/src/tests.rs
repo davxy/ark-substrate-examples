@@ -4,7 +4,7 @@ use crate::{
     utils::*,
 };
 use ark_scale::scale::Encode;
-use polkadot_sdk::frame_support::assert_ok;
+use frame_support::assert_ok;
 
 const MSM_ITEMS: u32 = 500;
 const SCALAR_WORDS: u32 = 3;

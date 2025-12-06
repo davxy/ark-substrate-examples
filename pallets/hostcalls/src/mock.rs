@@ -1,8 +1,8 @@
-use polkadot_sdk::{
-    frame_support, frame_support::derive_impl, frame_system, sp_io, sp_runtime::BuildStorage,
-};
+use frame_support::{self, derive_impl, sp_runtime::BuildStorage};
+use frame_system;
+use sp_io;
 
-type Block = polkadot_sdk::frame_system::mocking::MockBlock<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
 #[frame_support::runtime]
 mod runtime {

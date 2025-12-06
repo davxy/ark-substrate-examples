@@ -154,9 +154,10 @@ pub fn run() -> sc_cli::Result<()> {
                                     .into(),
                             );
                         }
-                        cmd.run_with_spec::<sp_runtime::traits::HashingFor<
-                            minimal_template_runtime::interface::Block,
-                        >, ()>(Some(config.chain_spec))
+                        cmd.run_with_spec::<
+                            sp_runtime::traits::HashingFor<minimal_template_runtime::interface::Block>,
+                            sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch::host_calls::HostFunctions
+                        >(Some(config.chain_spec))
                     }
                     _ => {
                         return Err("Runtime benchmarking wasn't supported for {cmd:?}".into());

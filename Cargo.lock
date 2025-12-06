@@ -6294,6 +6294,7 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "sp-crypto-ec-utils",
+ "sp-io",
 ]
 
 [[package]]

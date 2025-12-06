@@ -267,6 +267,17 @@ type RuntimeExecutive = frame_executive::Executive<
     AllPalletsWithSystem,
 >;
 
+#[cfg(feature = "runtime-benchmarks")]
+frame_benchmarking::define_benchmarks!(
+    [frame_system, SystemBench::<Runtime>]
+    [pallet_balances, Balances]
+    [pallet_timestamp, Timestamp]
+    [pallet_sudo, Sudo]
+);
+
+#[cfg(feature = "runtime-benchmarks")]
+impl frame_system_benchmarking::Config for Runtime {}
+
 impl_runtime_apis! {
     impl sp_api::Core<Block> for Runtime {
         fn version() -> RuntimeVersion {
@@ -382,6 +393,43 @@ impl_runtime_apis! {
             self::genesis_config_presets::preset_names()
         }
     }
+
+    #[cfg(feature = "runtime-benchmarks")]
+    impl frame_benchmarking::Benchmark<Block> for Runtime {
+        fn benchmark_metadata(extra: bool) -> (
+            Vec<frame_benchmarking::BenchmarkList>,
+            Vec<frame_support::traits::StorageInfo>,
+        ) {
+            use frame_benchmarking::BenchmarkList;
+            use frame_support::traits::StorageInfoTrait;
+            use frame_system_benchmarking::Pallet as SystemBench;
+
+            let mut list = Vec::<BenchmarkList>::new();
+            list_benchmarks!(list, extra);
+
+            let storage_info = AllPalletsWithSystem::storage_info();
+
+            (list, storage_info)
+        }
+
+        fn dispatch_benchmark(
+            config: frame_benchmarking::BenchmarkConfig
+        ) -> Result<Vec<frame_benchmarking::BenchmarkBatch>, alloc::string::String> {
+            use frame_benchmarking::BenchmarkBatch;
+            use sp_storage::TrackedStorageKey;
+            use frame_support::traits::WhitelistedStorageKeys;
+            use frame_system_benchmarking::Pallet as SystemBench;
+
+            let whitelist: Vec<TrackedStorageKey> = AllPalletsWithSystem::whitelisted_storage_keys();
+
+            let mut batches = Vec::<BenchmarkBatch>::new();
+            let params = (&config, &whitelist);
+            add_benchmarks!(params, batches);
+
+            Ok(batches)
+        }
+    }
+
 }
 
 /// Some re-exports that the node side code needs to know. Some are useful in this context as well.
