@@ -19,7 +19,54 @@ use frame_support::pallet_prelude::*;
 use log;
 
 use ark_vrf::reexports::ark_std::vec::Vec;
-pub use ark_vrf::suites::bandersnatch;
+
+use ark_vrf::suites::bandersnatch as ark_bandersnatch;
+pub(crate) type ArkSuite = ark_bandersnatch::BandersnatchSha512Ell2;
+
+use ark_vrf::ring::RingSuite as RingSuiteT;
+
+mod sub_bandersnatch {
+    use ark_vrf::{
+        pedersen::PedersenSuite, ring::RingSuite, ring_suite_types, suite_types,
+        suites::bandersnatch::BandersnatchSha512Ell2, Suite,
+    };
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    pub struct BandersnatchSuite;
+
+    impl Suite for BandersnatchSuite {
+        const SUITE_ID: &'static [u8] = BandersnatchSha512Ell2::SUITE_ID;
+        const CHALLENGE_LEN: usize = BandersnatchSha512Ell2::CHALLENGE_LEN;
+        type Affine = sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch::EdwardsAffine;
+        type Hasher = <BandersnatchSha512Ell2 as Suite>::Hasher;
+        type Codec = <BandersnatchSha512Ell2 as Suite>::Codec;
+    }
+
+    impl PedersenSuite for BandersnatchSuite {
+        const BLINDING_BASE: AffinePoint = AffinePoint::new_unchecked(
+            BandersnatchSha512Ell2::BLINDING_BASE.x,
+            BandersnatchSha512Ell2::BLINDING_BASE.y,
+        );
+    }
+
+    impl RingSuite for BandersnatchSuite {
+        type Pairing = sp_crypto_ec_utils::bls12_381::Bls12_381;
+        const ACCUMULATOR_BASE: AffinePoint = AffinePoint::new_unchecked(
+            BandersnatchSha512Ell2::ACCUMULATOR_BASE.x,
+            BandersnatchSha512Ell2::ACCUMULATOR_BASE.y,
+        );
+        const PADDING: AffinePoint = AffinePoint::new_unchecked(
+            BandersnatchSha512Ell2::PADDING.x,
+            BandersnatchSha512Ell2::PADDING.y,
+        );
+    }
+
+    suite_types!(BandersnatchSuite);
+
+    ring_suite_types!(BandersnatchSuite);
+}
+
+pub(crate) type SubSuite = sub_bandersnatch::BandersnatchSuite;
 
 // Re-export all pallet parts, this is needed to properly import the pallet into the runtime.
 pub use pallet::*;
@@ -28,7 +75,7 @@ const DEFAULT_WEIGHT: u64 = 10_000;
 
 const SRS_PAGE_SIZE: usize = 1 << 3;
 
-type SrsItem = ark_vrf::ring::G1Affine<bandersnatch::BandersnatchSha512Ell2>;
+type SrsItem = ark_vrf::ring::G1Affine<ark_bandersnatch::BandersnatchSha512Ell2>;
 
 const PUBLIC_KEY_SERIALIZED_SIZE: usize = 32;
 
@@ -70,8 +117,6 @@ impl Default for SrsPage {
         Self([SrsItemRaw([0_u8; SRS_ITEM_SERIALIZED_SIZE]); SRS_PAGE_SIZE])
     }
 }
-
-type Suite = bandersnatch::BandersnatchSha512Ell2;
 
 const RING_BUILDER_SERIALIZED_SIZE: usize = 848;
 
@@ -123,7 +168,8 @@ pub mod pallet {
     #[pallet::genesis_build]
     impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
         fn build(&self) {
-            type SrsItem = ark_vrf::ring::G1Affine<Suite>;
+            log::info!("Building paged SRS");
+            type SrsItem = ark_vrf::ring::G1Affine<ark_bandersnatch::BandersnatchSha512Ell2>;
             pub const RING_BUILDER_PARAMS: &[u8] =
                 include_bytes!("static/ring-builder-params-full.bin");
             let srs =
@@ -159,8 +205,16 @@ pub mod pallet {
 
         #[pallet::call_index(1)]
         #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
-        pub fn push_members(_: OriginFor<T>, new_members: Vec<PublicKeyRaw>) -> DispatchResult {
-            Self::push_members_impl(new_members);
+        pub fn push_members(
+            _: OriginFor<T>,
+            new_members: Vec<PublicKeyRaw>,
+            optimized: bool,
+        ) -> DispatchResult {
+            if optimized {
+                Self::push_members_impl::<SubSuite>(new_members);
+            } else {
+                Self::push_members_impl::<ArkSuite>(new_members);
+            }
             Ok(())
         }
 
@@ -176,46 +230,56 @@ pub mod pallet {
 
         #[pallet::call_index(3)]
         #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
-        pub fn ring_commit(origin: OriginFor<T>) -> DispatchResult {
+        pub fn ring_commit(origin: OriginFor<T>, optimized: bool) -> DispatchResult {
             let buffered_members = RingKeys::<T>::get().unwrap_or_default();
             if !buffered_members.is_empty() {
-                Self::push_members(origin, buffered_members.to_vec())?;
+                Self::push_members(origin, buffered_members.to_vec(), optimized)?;
             }
 
             // log::debug!("Commit ring with {} members", members.len());
             // TODO: intermediate function returning the builder
 
-            Self::commit_impl();
+            if optimized {
+                Self::commit_impl::<SubSuite>();
+            } else {
+                Self::commit_impl::<ArkSuite>();
+            }
 
             Ok(())
         }
     }
 
     impl<T: Config> Pallet<T> {
-        pub(crate) fn commit_impl() {
+        pub(crate) fn commit_impl<S: RingSuiteT>() {
             let builder_raw = RingBuilder::<T>::get().unwrap();
-            let builder = bandersnatch::RingVerifierKeyBuilder::deserialize_uncompressed_unchecked(
-                &builder_raw.0[..],
-            )
-            .unwrap();
-
-            let _verifier_key = builder.finalize();
-        }
-
-        pub(crate) fn push_members_impl(new_members: Vec<PublicKeyRaw>) {
-            let builder_raw = RingBuilder::<T>::get().unwrap();
-            let mut builder =
-                bandersnatch::RingVerifierKeyBuilder::deserialize_uncompressed_unchecked(
+            let builder =
+                ark_vrf::ring::RingVerifierKeyBuilder::<S>::deserialize_uncompressed_unchecked(
                     &builder_raw.0[..],
                 )
                 .unwrap();
-            type Affine = bandersnatch::AffinePoint;
+            let _verifier_key = builder.finalize();
+        }
+
+        pub(crate) fn push_members_impl<S: RingSuiteT>(new_members: Vec<PublicKeyRaw>) {
+            let mut builder_raw = RingBuilder::<T>::get().unwrap();
+            let lookup = |range: Range<usize>| Self::fetch_srs_chunks(range).ok();
+            let mut builder =
+                ark_bandersnatch::RingVerifierKeyBuilder::deserialize_uncompressed_unchecked(
+                    &builder_raw.0[..],
+                )
+                .unwrap();
             let new_members = new_members
                 .into_iter()
-                .map(|m| Affine::deserialize_compressed_unchecked(&m.0[..]).expect("TODO"))
+                .map(|m| {
+                    ark_bandersnatch::AffinePoint::deserialize_compressed_unchecked(&m.0[..])
+                        .expect("TODO")
+                })
                 .collect::<Vec<_>>();
-            let lookup = |range: Range<usize>| Self::fetch_srs_chunks(range).ok();
             builder.append(&new_members, lookup).unwrap();
+            builder
+                .serialize_uncompressed(&mut builder_raw.0[..])
+                .unwrap();
+            RingBuilder::<T>::set(Some(builder_raw));
         }
 
         pub(crate) fn ring_reset_impl() {

@@ -1,8 +1,9 @@
 #!/bin/bash
+set -e
 
-cargo build -p minimal-template-node --features runtime-benchmarks
+cargo build --release -p minimal-template-node --features runtime-benchmarks
 
-run="cargo run -p minimal-template-node --features runtime-benchmarks -- benchmark pallet"
+run="cargo run --release -p minimal-template-node --features runtime-benchmarks -- benchmark pallet"
 
 pallet=$1
 extrinsic=$2

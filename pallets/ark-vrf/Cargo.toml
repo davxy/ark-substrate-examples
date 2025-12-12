@@ -18,7 +18,10 @@ scale-info = { features = ["derive"], workspace = true }
 frame-benchmarking = { optional = true, workspace = true }
 frame-support = { workspace = true }
 frame-system = { workspace = true }
-log = { version = "0.4", default-features = false }
+log = { workspace = true }
+
+# sp deps
+sp-crypto-ec-utils = { workspace = true }
 
 # VRF crypto
 ark-vrf = { version = "0.1.0", default-features = false, features = ["bandersnatch", "ring"] }

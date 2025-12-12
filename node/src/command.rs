@@ -18,7 +18,7 @@
 use crate::{
     chain_spec,
     cli::{Cli, Subcommand},
-    service,
+    service::{self, CryptoHostcalls},
 };
 use frame_benchmarking_cli::BenchmarkCmd;
 use sc_cli::SubstrateCli;
@@ -156,7 +156,7 @@ pub fn run() -> sc_cli::Result<()> {
                         }
                         cmd.run_with_spec::<
                             sp_runtime::traits::HashingFor<minimal_template_runtime::interface::Block>,
-                            sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch::host_calls::HostFunctions
+                            CryptoHostcalls
                         >(Some(config.chain_spec))
                     }
                     _ => {

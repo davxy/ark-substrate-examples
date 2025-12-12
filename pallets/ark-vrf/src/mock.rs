@@ -47,8 +47,13 @@ impl crate::Config for Test {
 pub fn new_test_ext() -> sp_io::TestExternalities {
     let _ = sp_tracing::try_init_simple();
 
-    frame_system::GenesisConfig::<Test>::default()
+    let mut storage = frame_system::GenesisConfig::<Test>::default()
         .build_storage()
-        .unwrap()
-        .into()
+        .unwrap();
+
+    super::GenesisConfig::<Test>::default()
+        .assimilate_storage(&mut storage)
+        .unwrap();
+
+    storage.into()
 }
