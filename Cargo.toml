@@ -78,6 +78,3 @@ sp-tracing = { git = "https://github.com/paritytech/polkadot-sdk", default-featu
 substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-sdk", default-features = false }
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/polkadot-sdk", default-features = false }
 substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk", default-features = false }
-
-[patch."crates-io"]
-ark-vrf = { path = "/mnt/ssd/develop/crypto/ark-vrf" }

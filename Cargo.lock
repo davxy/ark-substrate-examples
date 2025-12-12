@@ -617,7 +617,9 @@ dependencies = [
 
 [[package]]
 name = "ark-vrf"
-version = "0.1.0"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d63e9780640021b74d02b32895d8cec1b4abe8e5547b560a6bda6b14b78c6da"
 dependencies = [
  "ark-bls12-381 0.5.0",
  "ark-ec 0.5.0",
