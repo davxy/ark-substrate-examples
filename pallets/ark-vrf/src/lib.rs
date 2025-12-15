@@ -23,6 +23,29 @@ use ark_vrf::reexports::ark_std::vec::Vec;
 use ark_vrf::suites::bandersnatch as ark_bandersnatch;
 pub(crate) type ArkSuite = ark_bandersnatch::BandersnatchSha512Ell2;
 
+pub(crate) type RingBuilderPcsParams =
+    ark_vrf::ring::RingBuilderPcsParams<ark_bandersnatch::BandersnatchSha512Ell2>;
+
+const fn max_ring_size_from_pcs_domain_size(pcs_domain_size: usize) -> usize {
+    ark_vrf::ring::max_ring_size_from_pcs_domain_size::<ArkSuite>(pcs_domain_size)
+}
+
+#[cfg(feature = "small-ring")]
+mod ring_params {
+    pub const RING_BUILDER_DATA: &[u8] = include_bytes!("static/ring-builder-small.bin");
+    pub const RING_BUILDER_PARAMS: &[u8] = include_bytes!("static/ring-builder-params-small.bin");
+    pub const MAX_RING_SIZE: usize = super::max_ring_size_from_pcs_domain_size(1 << 11);
+}
+
+#[cfg(not(feature = "small-ring"))]
+mod ring_params {
+    pub const RING_BUILDER_DATA: &[u8] = include_bytes!("static/ring-builder-full.bin");
+    pub const RING_BUILDER_PARAMS: &[u8] = include_bytes!("static/ring-builder-params-full.bin");
+    pub const MAX_RING_SIZE: usize = super::max_ring_size_from_pcs_domain_size(1 << 16);
+}
+
+pub(crate) use ring_params::*;
+
 mod sub_bandersnatch {
     use ark_vrf::{
         pedersen::PedersenSuite, ring::RingSuite, ring_suite_types, suite_types,
@@ -228,20 +251,17 @@ pub mod pallet {
     impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
         fn build(&self) {
             log::info!("Building paged SRS");
-            type SrsItem = ark_vrf::ring::G1Affine<ark_bandersnatch::BandersnatchSha512Ell2>;
-            pub const RING_BUILDER_PARAMS: &[u8] =
-                include_bytes!("static/ring-builder-params-full.bin");
-            let srs =
-                <Vec<SrsItem>>::deserialize_uncompressed_unchecked(RING_BUILDER_PARAMS).unwrap();
-            assert_eq!(srs.len(), 1 << 14);
+            let builder_pcs_params =
+                RingBuilderPcsParams::deserialize_uncompressed_unchecked(RING_BUILDER_PARAMS)
+                    .unwrap();
             let mut srs_page = SrsPage::default();
-            for (i, item) in srs.iter().enumerate() {
+            for (i, item) in builder_pcs_params.0.iter().enumerate() {
                 let page_off = i % SRS_PAGE_SIZE;
                 let raw = &mut srs_page.0[page_off];
                 item.serialize_compressed(&mut raw.0[..]).unwrap();
                 if page_off == SRS_PAGE_SIZE - 1 {
-                    let page_index = i / SRS_PAGE_SIZE;
-                    Srs::<T>::insert(page_index as u32, srs_page.clone());
+                    let page_idx = i / SRS_PAGE_SIZE;
+                    Srs::<T>::insert(page_idx as u32, srs_page.clone());
                 }
             }
 
@@ -372,7 +392,7 @@ pub mod pallet {
             let proof =
                 ark_vrf::ietf::Proof::<S>::deserialize_compressed_unchecked(&proof_raw.0[..])
                     .unwrap();
-            public.verify(input, output, &[], &proof).unwrap()
+            public.verify(input, output, &[], &proof).unwrap();
         }
 
         pub(crate) fn ring_verify_impl<S: RingSuite>(
@@ -402,8 +422,7 @@ pub mod pallet {
                 ring_size as usize,
             );
 
-            // TODO
-            let _ = ark_vrf::Public::<S>::verify(input, output, &[], &proof, &verifier);
+            ark_vrf::Public::<S>::verify(input, output, &[], &proof, &verifier).unwrap();
         }
 
         pub(crate) fn commit_impl<S: RingSuite>() {
@@ -423,7 +442,6 @@ pub mod pallet {
 
         pub(crate) fn push_members_impl<S: RingSuite>(new_members: Vec<PublicKeyRaw>) {
             let mut builder_raw = RingBuilder::<T>::get().unwrap();
-            let lookup = |range: Range<usize>| Self::fetch_srs_chunks(range).ok();
             let mut builder =
                 ark_bandersnatch::RingVerifierKeyBuilder::deserialize_uncompressed_unchecked(
                     &builder_raw.0[..],
@@ -432,11 +450,12 @@ pub mod pallet {
             let new_members = new_members
                 .into_iter()
                 .map(|m| {
+                    log::trace!("Pushing {:02x?}", m.0);
                     ark_bandersnatch::AffinePoint::deserialize_compressed_unchecked(&m.0[..])
                         .unwrap()
                 })
                 .collect::<Vec<_>>();
-            builder.append(&new_members, lookup).unwrap();
+            builder.append(&new_members, Self::fetch_srs_range).unwrap();
             builder
                 .serialize_uncompressed(&mut builder_raw.0[..])
                 .unwrap();
@@ -444,38 +463,30 @@ pub mod pallet {
         }
 
         pub(crate) fn ring_reset_impl() {
-            const RING_BUILDER_DATA: &[u8] = include_bytes!("static/ring-builder-full.bin");
             let mut builder_raw = [0_u8; RING_BUILDER_SERIALIZED_SIZE];
             builder_raw.copy_from_slice(RING_BUILDER_DATA);
+            log::debug!("Reset ring verifier key builder");
             RingBuilder::<T>::set(Some(RingBuilderRaw(builder_raw)));
         }
 
         // Given a range, returns the list of chunks that maps to the keys at those indices.
-        pub(crate) fn fetch_srs_chunks(range: Range<usize>) -> Result<Vec<SrsItem>, ()> {
-            let expected_len = range.end.saturating_sub(range.start);
-            let mut page_idx = range.start.checked_div(SRS_PAGE_SIZE).ok_or(())?;
+        pub(crate) fn fetch_srs_range(range: Range<usize>) -> Option<Vec<SrsItem>> {
+            log::debug!("SRS lookup {range:?}");
 
-            let mut chunks = Srs::<T>::get(page_idx as u32)
-                .ok_or(())?
-                .0
-                .into_iter()
-                .skip(range.start % SRS_PAGE_SIZE)
-                .take(expected_len)
-                .map(|data| SrsItem::deserialize_compressed(&data.0[..]).unwrap())
-                .collect::<Vec<_>>();
+            let start_page = range.start / SRS_PAGE_SIZE;
+            let end_page = (range.end - 1) / SRS_PAGE_SIZE;
 
-            while chunks.len() < expected_len {
-                page_idx = page_idx.checked_add(1).ok_or(())?;
-                let page = Srs::<T>::get(page_idx as u32).ok_or(())?;
-                chunks.extend(
-                    page.0
-                        .into_iter()
-                        .map(|data| SrsItem::deserialize_compressed(&data.0[..]).unwrap())
-                        .take(expected_len.saturating_sub(chunks.len())),
-                );
-            }
-
-            Ok(chunks)
+            Some(
+                (start_page..=end_page)
+                    .flat_map(|page_idx| {
+                        log::trace!("  Reading page {page_idx}");
+                        Srs::<T>::get(page_idx as u32).unwrap().0.into_iter()
+                    })
+                    .skip(range.start % SRS_PAGE_SIZE)
+                    .take(range.end - range.start)
+                    .map(|data| SrsItem::deserialize_compressed(&data.0[..]).unwrap())
+                    .collect(),
+            )
         }
     }
 }

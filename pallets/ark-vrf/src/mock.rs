@@ -36,7 +36,7 @@ impl frame_system::Config for Test {
 }
 
 parameter_types! {
-    pub MaxRingSize: u32 = 10;
+    pub MaxRingSize: u32 = crate::MAX_RING_SIZE as u32;
 }
 
 impl crate::Config for Test {

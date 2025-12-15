@@ -41,6 +41,7 @@ std = [
 	"frame-system/std",
 	"log/std",
 	"scale-info/std",
+	"ark-vrf/parallel"
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
@@ -48,3 +49,4 @@ runtime-benchmarks = [
 	"frame-system/runtime-benchmarks",
 	"ark-vrf/test-vectors",
 ]
+small-ring = []

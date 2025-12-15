@@ -428,6 +428,7 @@ dependencies = [
  "num-bigint",
  "num-traits",
  "paste",
+ "rayon",
  "zeroize",
 ]
 
@@ -516,6 +517,7 @@ dependencies = [
  "educe",
  "fnv",
  "hashbrown 0.15.5",
+ "rayon",
 ]
 
 [[package]]
@@ -629,6 +631,7 @@ dependencies = [
  "ark-std 0.5.0",
  "digest 0.10.7",
  "rand_chacha 0.3.1",
+ "rayon",
  "sha2 0.10.9",
  "w3f-ring-proof",
  "zeroize",
@@ -12265,6 +12268,7 @@ dependencies = [
  "ark-serialize 0.5.0",
  "ark-std 0.5.0",
  "merlin",
+ "rayon",
 ]
 
 [[package]]
@@ -12280,6 +12284,7 @@ dependencies = [
  "ark-std 0.5.0",
  "getrandom_or_panic",
  "rand_core 0.6.4",
+ "rayon",
  "w3f-pcs",
 ]
 
@@ -12295,6 +12300,7 @@ dependencies = [
  "ark-serialize 0.5.0",
  "ark-std 0.5.0",
  "ark-transcript",
+ "rayon",
  "w3f-pcs",
  "w3f-plonk-common",
 ]
