@@ -60,7 +60,7 @@ substrate-frame-rpc-system = { workspace = true, default-features = true }
 frame-benchmarking-cli = { workspace = true, default-features = true }
 
 # Local Dependencies
-minimal-template-runtime = { path = "../runtime" }
+ark-runtime = { path = "../runtime" }
 
 [build-dependencies]
 substrate-build-script-utils = { workspace = true, default-features = true }
@@ -68,16 +68,16 @@ substrate-build-script-utils = { workspace = true, default-features = true }
 [features]
 default = ["std"]
 std = [
-	"minimal-template-runtime/std",
+	"ark-runtime/std",
 ]
 runtime-benchmarks = [
+	"ark-runtime/runtime-benchmarks",
 	"frame-benchmarking-cli/runtime-benchmarks",
 	"frame-system/runtime-benchmarks",
-	"minimal-template-runtime/runtime-benchmarks",
 	"pallet-transaction-payment/runtime-benchmarks",
 	"sc-service/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 ]
 small-ring = [
-	"minimal-template-runtime/small-ring"
+	"ark-runtime/small-ring"
 ]

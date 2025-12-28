@@ -30,16 +30,16 @@ pub(crate) type RingBuilderPcsParams =
 mod ring_params {
     pub const RING_BUILDER_DATA: &[u8] = include_bytes!("static/ring-builder-small.bin");
     pub const RING_BUILDER_PARAMS: &[u8] = include_bytes!("static/ring-builder-params-small.bin");
-    pub const MAX_RING_SIZE: usize =
-        ark_vrf::ring::max_ring_size_from_pcs_domain_size::<super::ArkSuite>(1 << 11);
+    pub const MAX_RING_SIZE: u32 =
+        ark_vrf::ring::max_ring_size_from_pcs_domain_size::<super::ArkSuite>(1 << 11) as u32;
 }
 
 #[cfg(not(feature = "small-ring"))]
 mod ring_params {
     pub const RING_BUILDER_DATA: &[u8] = include_bytes!("static/ring-builder-full.bin");
     pub const RING_BUILDER_PARAMS: &[u8] = include_bytes!("static/ring-builder-params-full.bin");
-    pub const MAX_RING_SIZE: usize =
-        ark_vrf::ring::max_ring_size_from_pcs_domain_size::<super::ArkSuite>(1 << 16);
+    pub const MAX_RING_SIZE: u32 =
+        ark_vrf::ring::max_ring_size_from_pcs_domain_size::<super::ArkSuite>(1 << 16) as u32;
 }
 
 pub use ring_params::MAX_RING_SIZE;

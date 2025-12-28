@@ -34,7 +34,7 @@ pub fn ietf_verify_params_gen() -> (PublicKeyRaw, InputRaw, OutputRaw, IetfProof
     )
 }
 
-pub fn ring_members_gen_raw(ring_size: usize) -> Vec<PublicKeyRaw> {
+pub fn ring_members_gen_raw(ring_size: u32) -> Vec<PublicKeyRaw> {
     log::debug!("Generate {ring_size} ring items");
     ring_members_gen(ring_size)
         .into_iter()
@@ -46,7 +46,7 @@ pub fn ring_members_gen_raw(ring_size: usize) -> Vec<PublicKeyRaw> {
         .collect()
 }
 
-pub fn ring_members_gen(ring_size: usize) -> Vec<ark_bandersnatch::Public> {
+pub fn ring_members_gen(ring_size: u32) -> Vec<ark_bandersnatch::Public> {
     (0..ring_size)
         .map(|i| ark_bandersnatch::Secret::from_seed(&[i as u8]).public())
         .collect()
@@ -55,7 +55,7 @@ pub fn ring_members_gen(ring_size: usize) -> Vec<ark_bandersnatch::Public> {
 pub(crate) const SRS_RAW: &[u8] = include_bytes!("static/srs-uncompressed.bin");
 
 pub fn ring_verify_params_gen(
-    max_ring_size: usize,
+    max_ring_size: u32,
     members: Option<&[PublicKeyRaw]>,
 ) -> (InputRaw, OutputRaw, RingProofRaw) {
     use ark_vrf::ring::Prover;

@@ -521,6 +521,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "ark-runtime"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-executive",
+ "frame-support",
+ "frame-system",
+ "frame-system-benchmarking",
+ "frame-system-rpc-runtime-api",
+ "pallet-ark-hostcalls",
+ "pallet-ark-vrf",
+ "pallet-balances",
+ "pallet-sudo",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc-runtime-api",
+ "parity-scale-codec",
+ "scale-info",
+ "serde_json",
+ "sp-api",
+ "sp-block-builder",
+ "sp-core",
+ "sp-genesis-builder",
+ "sp-inherents",
+ "sp-keyring",
+ "sp-offchain",
+ "sp-runtime",
+ "sp-session",
+ "sp-storage",
+ "sp-transaction-pool",
+ "sp-version",
+ "substrate-wasm-builder",
+]
+
+[[package]]
 name = "ark-scale"
 version = "0.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5634,6 +5669,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 name = "minimal-template-node"
 version = "0.1.0"
 dependencies = [
+ "ark-runtime",
  "clap",
  "docify",
  "frame-benchmarking-cli",
@@ -5641,7 +5677,6 @@ dependencies = [
  "futures",
  "futures-timer",
  "jsonrpsee",
- "minimal-template-runtime",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc",
  "sc-basic-authorship",
@@ -5672,41 +5707,6 @@ dependencies = [
  "sp-timestamp",
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",
-]
-
-[[package]]
-name = "minimal-template-runtime"
-version = "0.1.0"
-dependencies = [
- "frame-benchmarking",
- "frame-executive",
- "frame-support",
- "frame-system",
- "frame-system-benchmarking",
- "frame-system-rpc-runtime-api",
- "pallet-ark-hostcalls",
- "pallet-ark-vrf",
- "pallet-balances",
- "pallet-sudo",
- "pallet-timestamp",
- "pallet-transaction-payment",
- "pallet-transaction-payment-rpc-runtime-api",
- "parity-scale-codec",
- "scale-info",
- "serde_json",
- "sp-api",
- "sp-block-builder",
- "sp-core",
- "sp-genesis-builder",
- "sp-inherents",
- "sp-keyring",
- "sp-offchain",
- "sp-runtime",
- "sp-session",
- "sp-storage",
- "sp-transaction-pool",
- "sp-version",
- "substrate-wasm-builder",
 ]
 
 [[package]]

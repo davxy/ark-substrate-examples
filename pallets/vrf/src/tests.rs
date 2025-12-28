@@ -2,7 +2,7 @@ use crate::mock::{MaxRingSize, RuntimeOrigin, Test};
 use crate::{mock::new_test_ext, utils};
 use crate::{Pallet, PublicKeyRaw, RingBuilderPcsParams, RING_BUILDER_DATA, RING_BUILDER_PARAMS};
 
-const TEST_RING_SIZE: usize = 42;
+const TEST_RING_SIZE: u32 = 42;
 
 fn ietf_verify(optimized: bool) {
     let (public_raw, input_raw, output_raw, proof_raw) = utils::ietf_verify_params_gen();
@@ -21,7 +21,7 @@ fn ring_verify(optimized: bool) {
     let members = ring_commit(optimized);
 
     let (input_raw, output_raw, proof_raw) =
-        utils::ring_verify_params_gen(MaxRingSize::get() as usize, Some(&members));
+        utils::ring_verify_params_gen(MaxRingSize::get(), Some(&members));
     Pallet::<Test>::ring_verify(
         RuntimeOrigin::none(),
         input_raw,
@@ -79,18 +79,21 @@ fn backend_works(pregen_params: bool) {
     let input = ark_bandersnatch::Input::new(b"input").unwrap();
     let output = secret.output(input);
 
-    const _CHECK: usize = crate::MAX_RING_SIZE - TEST_RING_SIZE; // Static check for MAX_RING_SIZE >= TEST_RING_SIZE
+    const _CHECK: u32 = crate::MAX_RING_SIZE - TEST_RING_SIZE; // Static check for MAX_RING_SIZE >= TEST_RING_SIZE
 
     let params = if pregen_params {
         let pcs_params =
             ark_bandersnatch::PcsParams::deserialize_uncompressed_unchecked(utils::SRS_RAW)
                 .unwrap();
-        ark_bandersnatch::RingProofParams::from_pcs_params(crate::MAX_RING_SIZE, pcs_params)
-            .unwrap()
+        ark_bandersnatch::RingProofParams::from_pcs_params(
+            crate::MAX_RING_SIZE as usize,
+            pcs_params,
+        )
+        .unwrap()
     } else {
-        ark_bandersnatch::RingProofParams::from_seed(crate::MAX_RING_SIZE, [0_u8; 32])
+        ark_bandersnatch::RingProofParams::from_seed(crate::MAX_RING_SIZE as usize, [0_u8; 32])
     };
-    assert_eq!(params.max_ring_size(), crate::MAX_RING_SIZE);
+    assert_eq!(params.max_ring_size(), crate::MAX_RING_SIZE as usize);
 
     let ring_members = utils::ring_members_gen(TEST_RING_SIZE)
         .into_iter()

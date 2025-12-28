@@ -91,8 +91,8 @@ pub mod genesis_config_presets {
 /// The runtime version.
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: alloc::borrow::Cow::Borrowed("minimal-template-runtime"),
-    impl_name: alloc::borrow::Cow::Borrowed("minimal-template-runtime"),
+    spec_name: alloc::borrow::Cow::Borrowed("ark-runtime"),
+    impl_name: alloc::borrow::Cow::Borrowed("ark-runtime"),
     authoring_version: 1,
     spec_version: 0,
     impl_version: 1,
@@ -224,7 +224,7 @@ impl pallet_transaction_payment::Config for Runtime {
 impl pallet_ark_hostcalls::Config for Runtime {}
 
 parameter_types! {
-    pub MaxRingSize: u32 = pallet_ark_vrf::MAX_RING_SIZE as u32;
+    pub MaxRingSize: u32 = pallet_ark_vrf::MAX_RING_SIZE;
 }
 
 impl pallet_ark_vrf::Config for Runtime {

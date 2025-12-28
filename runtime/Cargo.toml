@@ -1,6 +1,6 @@
 [package]
-name = "minimal-template-runtime"
-description = "A solochain runtime template built with Substrate, part of Polkadot Sdk."
+name = "ark-runtime"
+description = "Runtime used to test ark related pallets"
 version.workspace = true
 license.workspace = true
 authors.workspace = true
