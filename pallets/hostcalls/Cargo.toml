@@ -26,6 +26,8 @@ sp-crypto-ec-utils = { workspace = true }
 ark-ec = { version = "0.5.0", default-features = false }
 ark-std = { version = "0.5.0", default-features = false }
 ark-scale = { version = "0.0.13", default-features = false, features = ["hazmat"] }
+ark-bls12-381 = { version = "0.5.0", default-features = false }
+ark-ed-on-bls12-377 = { version = "0.5.0", default-features = false }
 ark-ed-on-bls12-381-bandersnatch = { version = "0.5.0", default-features = false }
 
 [dev-dependencies]
@@ -46,6 +48,8 @@ std = [
 	"ark-ec/std",
 	"ark-std/std",
 	"ark-scale/std",
+	"ark-bls12-381/std",
+	"ark-ed-on-bls12-377/std",
 	"ark-ed-on-bls12-381-bandersnatch/std",
 ]
 runtime-benchmarks = [

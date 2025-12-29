@@ -22,6 +22,90 @@ mod benchmarks {
     use super::*;
 
     // ---------------------------------------------
+    // Calls for ed-on-bls12-377
+    // ---------------------------------------------
+
+    // Twisted Edwards
+
+    #[benchmark]
+    fn ark_ed_on_bls12_377_msm_te(x: Linear<MSM_LEN_MIN, MSM_LEN_MAX>) {
+        let (bases, scalars) = utils::make_msm_args::<ark_ed_on_bls12_377::EdwardsProjective>(x);
+        #[extrinsic_call]
+        ed_on_bls12_377_msm_te(
+            RawOrigin::Signed(whitelisted_caller()),
+            bases.encode(),
+            scalars.encode(),
+            false,
+        );
+    }
+
+    #[benchmark]
+    fn sub_ed_on_bls12_377_msm_te(x: Linear<MSM_LEN_MIN, MSM_LEN_MAX>) {
+        let (bases, scalars) = utils::make_msm_args::<ark_ed_on_bls12_377::EdwardsProjective>(x);
+        #[extrinsic_call]
+        ed_on_bls12_377_msm_te(
+            RawOrigin::Signed(whitelisted_caller()),
+            bases.encode(),
+            scalars.encode(),
+            true,
+        );
+    }
+
+    // #[benchmark]
+    // fn ark_ed_on_bls12_377_mul_projective_te() {
+    //     let (base, scalar) =
+    //         utils::make_mul_projective_args::<ark_ed_on_bls12_377::EdwardsProjective>();
+
+    //     #[extrinsic_call]
+    //     ed_on_bls12_377_mul_projective_te(
+    //         RawOrigin::Signed(whitelisted_caller()),
+    //         base.encode(),
+    //         scalar.encode(),
+    //         false,
+    //     );
+    // }
+
+    // #[benchmark]
+    // fn sub_ed_on_bls12_377_mul_projective_te() {
+    //     let (base, scalar) =
+    //         utils::make_mul_projective_args::<ark_ed_on_bls12_377::EdwardsProjective>();
+
+    //     #[extrinsic_call]
+    //     ed_on_bls12_377_mul_projective_te(
+    //         RawOrigin::Signed(whitelisted_caller()),
+    //         base.encode(),
+    //         scalar.encode(),
+    //         true,
+    //     );
+    // }
+
+    // #[benchmark]
+    // fn ark_ed_on_bls12_377_mul_affine_te() {
+    //     let (base, scalar) = utils::make_mul_affine_args::<ark_ed_on_bls12_377::EdwardsAffine>();
+
+    //     #[extrinsic_call]
+    //     ed_on_bls12_377_mul_affine_te(
+    //         RawOrigin::Signed(whitelisted_caller()),
+    //         base.encode(),
+    //         scalar.encode(),
+    //         false,
+    //     );
+    // }
+
+    // #[benchmark]
+    // fn sub_ed_on_bls12_377_mul_affine_te() {
+    //     let (base, scalar) = utils::make_mul_affine_args::<ark_ed_on_bls12_377::EdwardsAffine>();
+
+    //     #[extrinsic_call]
+    //     ed_on_bls12_377_mul_affine_te(
+    //         RawOrigin::Signed(whitelisted_caller()),
+    //         base.encode(),
+    //         scalar.encode(),
+    //         true,
+    //     );
+    // }
+
+    // ---------------------------------------------
     // Calls for ed-on-bls12-381-bandersnatch
     // ---------------------------------------------
 

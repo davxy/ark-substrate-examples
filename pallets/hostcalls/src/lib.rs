@@ -19,6 +19,7 @@ use frame_support::pallet_prelude::*;
 use frame_system::pallet_prelude::*;
 
 use ark_ec::{
+    pairing::Pairing,
     short_weierstrass::{Affine as SWAffine, Projective as SWProjective, SWCurveConfig},
     twisted_edwards::{Affine as TEAffine, Projective as TEProjective, TECurveConfig},
     AffineRepr,
@@ -26,7 +27,10 @@ use ark_ec::{
 use ark_scale::{hazmat::ArkScaleProjective, scale::Decode};
 use ark_std::vec::Vec;
 
-pub use sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch as sub_ed_on_bls12_381_bandersnatch;
+pub use sp_crypto_ec_utils::{
+    bls12_381 as sub_bls12_381, ed_on_bls12_377 as sub_ed_on_bls12_377,
+    ed_on_bls12_381_bandersnatch as sub_ed_on_bls12_381_bandersnatch,
+};
 
 pub type ScalarFieldFor<AffineT> = <AffineT as AffineRepr>::ScalarField;
 
@@ -36,46 +40,46 @@ pub use pallet::*;
 
 const DEFAULT_WEIGHT: u64 = 10_000;
 
-fn ed_on_bls12_381_bandersnatch_msm_sw<C: SWCurveConfig>(bases: Vec<u8>, scalars: Vec<u8>) {
+fn msm_sw<C: SWCurveConfig>(bases: Vec<u8>, scalars: Vec<u8>) {
     let bases = ArkScale::<Vec<SWAffine<C>>>::decode(&mut bases.as_slice()).unwrap();
     let scalars = ArkScale::<Vec<C::ScalarField>>::decode(&mut scalars.as_slice()).unwrap();
     let _ = C::msm(&bases.0, &scalars.0).unwrap();
 }
 
-fn ed_on_bls12_381_bandersnatch_mul_projective_sw<C: SWCurveConfig>(
-    base: Vec<u8>,
-    scalar: Vec<u8>,
-) {
+fn mul_projective_sw<C: SWCurveConfig>(base: Vec<u8>, scalar: Vec<u8>) {
     let base = ArkScaleProjective::<SWProjective<C>>::decode(&mut base.as_slice()).unwrap();
     let scalar = ArkScale::<Vec<u64>>::decode(&mut scalar.as_slice()).unwrap();
     let _ = C::mul_projective(&base.0, &scalar.0);
 }
 
-fn ed_on_bls12_381_bandersnatch_mul_affine_sw<C: SWCurveConfig>(base: Vec<u8>, scalar: Vec<u8>) {
+fn mul_affine_sw<C: SWCurveConfig>(base: Vec<u8>, scalar: Vec<u8>) {
     let base = ArkScale::<SWAffine<C>>::decode(&mut base.as_slice()).unwrap();
     let scalar = ArkScale::<Vec<u64>>::decode(&mut scalar.as_slice()).unwrap();
     let _ = C::mul_affine(&base.0, &scalar.0);
 }
 
-fn ed_on_bls12_381_bandersnatch_msm_te<C: TECurveConfig>(bases: Vec<u8>, scalars: Vec<u8>) {
+fn msm_te<C: TECurveConfig>(bases: Vec<u8>, scalars: Vec<u8>) {
     let bases = ArkScale::<Vec<TEAffine<C>>>::decode(&mut bases.as_slice()).unwrap();
     let scalars = ArkScale::<Vec<C::ScalarField>>::decode(&mut scalars.as_slice()).unwrap();
     let _ = C::msm(&bases.0, &scalars.0).unwrap();
 }
 
-fn ed_on_bls12_381_bandersnatch_mul_projective_te<C: TECurveConfig>(
-    base: Vec<u8>,
-    scalar: Vec<u8>,
-) {
+fn mul_projective_te<C: TECurveConfig>(base: Vec<u8>, scalar: Vec<u8>) {
     let base = ArkScaleProjective::<TEProjective<C>>::decode(&mut base.as_slice()).unwrap();
     let scalar = ArkScale::<Vec<u64>>::decode(&mut scalar.as_slice()).unwrap();
     let _ = C::mul_projective(&base.0, &scalar.0);
 }
 
-fn ed_on_bls12_381_bandersnatch_mul_affine_te<C: TECurveConfig>(base: Vec<u8>, scalar: Vec<u8>) {
+fn mul_affine_te<C: TECurveConfig>(base: Vec<u8>, scalar: Vec<u8>) {
     let base = ArkScale::<TEAffine<C>>::decode(&mut base.as_slice()).unwrap();
     let scalar = ArkScale::<Vec<u64>>::decode(&mut scalar.as_slice()).unwrap();
     let _ = C::mul_affine(&base.0, &scalar.0);
+}
+
+fn pairing<P: Pairing>(a: Vec<u8>, b: Vec<u8>) {
+    let a = ArkScale::<P::G1Affine>::decode(&mut a.as_slice()).unwrap();
+    let b = ArkScale::<P::G2Affine>::decode(&mut b.as_slice()).unwrap();
+    let _ = P::multi_pairing([a.0], [b.0]);
 }
 
 #[frame_support::pallet]
@@ -92,6 +96,41 @@ pub mod pallet {
     #[pallet::call]
     impl<T: Config> Pallet<T> {
         // ---------------------------------------------
+        // Calls for bls12-381
+        // ---------------------------------------------
+
+        #[pallet::call_index(10)]
+        #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
+        pub fn pairing(_: OriginFor<T>, a: Vec<u8>, b: Vec<u8>, optimized: bool) -> DispatchResult {
+            if optimized {
+                pairing::<sub_bls12_381::Bls12_381>(a, b);
+            } else {
+                pairing::<ark_bls12_381::Bls12_381>(a, b);
+            }
+            Ok(())
+        }
+
+        // ---------------------------------------------
+        // Calls for ed-on-bls12-377
+        // ---------------------------------------------
+
+        #[pallet::call_index(20)]
+        #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
+        pub fn ed_on_bls12_377_msm_te(
+            _: OriginFor<T>,
+            bases: Vec<u8>,
+            scalars: Vec<u8>,
+            optimized: bool,
+        ) -> DispatchResult {
+            if optimized {
+                msm_te::<sub_ed_on_bls12_377::EdwardsConfig>(bases, scalars)
+            } else {
+                msm_te::<ark_ed_on_bls12_377::EdwardsConfig>(bases, scalars)
+            }
+            Ok(())
+        }
+
+        // ---------------------------------------------
         // Calls for ed-on-bls12-381-bandersnatch
         // ---------------------------------------------
 
@@ -106,13 +145,9 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                ed_on_bls12_381_bandersnatch_msm_sw::<sub_ed_on_bls12_381_bandersnatch::SWConfig>(
-                    bases, scalars,
-                )
+                msm_sw::<sub_ed_on_bls12_381_bandersnatch::SWConfig>(bases, scalars)
             } else {
-                ed_on_bls12_381_bandersnatch_msm_sw::<ark_ed_on_bls12_381_bandersnatch::SWConfig>(
-                    bases, scalars,
-                )
+                msm_sw::<ark_ed_on_bls12_381_bandersnatch::SWConfig>(bases, scalars)
             }
             Ok(())
         }
@@ -126,13 +161,9 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                ed_on_bls12_381_bandersnatch_mul_projective_sw::<
-                    sub_ed_on_bls12_381_bandersnatch::SWConfig,
-                >(base, scalar);
+                mul_projective_sw::<sub_ed_on_bls12_381_bandersnatch::SWConfig>(base, scalar);
             } else {
-                ed_on_bls12_381_bandersnatch_mul_projective_sw::<
-                    ark_ed_on_bls12_381_bandersnatch::SWConfig,
-                >(base, scalar);
+                mul_projective_sw::<ark_ed_on_bls12_381_bandersnatch::SWConfig>(base, scalar);
             }
             Ok(())
         }
@@ -146,13 +177,9 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                ed_on_bls12_381_bandersnatch_mul_affine_sw::<
-                    sub_ed_on_bls12_381_bandersnatch::SWConfig,
-                >(base, scalar);
+                mul_affine_sw::<sub_ed_on_bls12_381_bandersnatch::SWConfig>(base, scalar);
             } else {
-                ed_on_bls12_381_bandersnatch_mul_affine_sw::<
-                    ark_ed_on_bls12_381_bandersnatch::SWConfig,
-                >(base, scalar);
+                mul_affine_sw::<ark_ed_on_bls12_381_bandersnatch::SWConfig>(base, scalar);
             }
             Ok(())
         }
@@ -168,13 +195,9 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                ed_on_bls12_381_bandersnatch_msm_te::<sub_ed_on_bls12_381_bandersnatch::EdwardsConfig>(
-                    bases, scalars,
-                )
+                msm_te::<sub_ed_on_bls12_381_bandersnatch::EdwardsConfig>(bases, scalars)
             } else {
-                ed_on_bls12_381_bandersnatch_msm_te::<ark_ed_on_bls12_381_bandersnatch::EdwardsConfig>(
-                    bases, scalars,
-                )
+                msm_te::<ark_ed_on_bls12_381_bandersnatch::EdwardsConfig>(bases, scalars)
             }
             Ok(())
         }
@@ -188,13 +211,9 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                ed_on_bls12_381_bandersnatch_mul_projective_te::<
-                    sub_ed_on_bls12_381_bandersnatch::EdwardsConfig,
-                >(base, scalar);
+                mul_projective_te::<sub_ed_on_bls12_381_bandersnatch::EdwardsConfig>(base, scalar);
             } else {
-                ed_on_bls12_381_bandersnatch_mul_projective_te::<
-                    ark_ed_on_bls12_381_bandersnatch::EdwardsConfig,
-                >(base, scalar);
+                mul_projective_te::<ark_ed_on_bls12_381_bandersnatch::EdwardsConfig>(base, scalar);
             }
             Ok(())
         }
@@ -208,13 +227,9 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                ed_on_bls12_381_bandersnatch_mul_affine_te::<
-                    sub_ed_on_bls12_381_bandersnatch::EdwardsConfig,
-                >(base, scalar);
+                mul_affine_te::<sub_ed_on_bls12_381_bandersnatch::EdwardsConfig>(base, scalar);
             } else {
-                ed_on_bls12_381_bandersnatch_mul_affine_te::<
-                    ark_ed_on_bls12_381_bandersnatch::EdwardsConfig,
-                >(base, scalar);
+                mul_affine_te::<ark_ed_on_bls12_381_bandersnatch::EdwardsConfig>(base, scalar);
             }
             Ok(())
         }

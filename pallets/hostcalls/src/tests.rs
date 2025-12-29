@@ -9,6 +9,33 @@ const MSM_ITEMS: u32 = 500;
 const SCALAR_WORDS: u32 = 3;
 
 // ---------------------------------------------
+// Tests for ed-on-bls12-377
+// ---------------------------------------------
+
+fn ed_on_bls12_377_msm_te(optimized: bool) {
+    let (bases, scalars) = make_msm_args::<ark_ed_on_bls12_377::EdwardsProjective>(MSM_ITEMS);
+
+    new_test_ext().execute_with(|| {
+        assert_ok!(ArkHostcalls::ed_on_bls12_377_msm_te(
+            RuntimeOrigin::none(),
+            bases.encode(),
+            scalars.encode(),
+            optimized
+        ));
+    });
+}
+
+#[test]
+fn ark_ed_on_bls12_377_msm_te() {
+    ed_on_bls12_377_msm_te(false);
+}
+
+#[test]
+fn sub_ed_on_bls12_377_msm_te() {
+    ed_on_bls12_377_msm_te(true);
+}
+
+// ---------------------------------------------
 // Tests for ed-on-bls12-381-bandersnatch
 // ---------------------------------------------
 
