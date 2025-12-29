@@ -101,7 +101,12 @@ pub mod pallet {
 
         #[pallet::call_index(10)]
         #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
-        pub fn pairing(_: OriginFor<T>, a: Vec<u8>, b: Vec<u8>, optimized: bool) -> DispatchResult {
+        pub fn bls12_381_pairing(
+            _: OriginFor<T>,
+            a: Vec<u8>,
+            b: Vec<u8>,
+            optimized: bool,
+        ) -> DispatchResult {
             if optimized {
                 pairing::<sub_bls12_381::Bls12_381>(a, b);
             } else {

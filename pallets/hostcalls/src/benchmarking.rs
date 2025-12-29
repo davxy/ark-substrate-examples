@@ -22,6 +22,18 @@ mod benchmarks {
     use super::*;
 
     // ---------------------------------------------
+    // Calls for bls12-381
+    // ---------------------------------------------
+
+    #[benchmark]
+    fn ark_bls12_381_pairing() {
+        let (a, b) = utils::make_pairing_args::<ark_bls12_381::G1Affine, ark_bls12_381::G2Affine>();
+
+        #[extrinsic_call]
+        bls12_381_pairing(RawOrigin::None, a.encode(), b.encode(), false);
+    }
+
+    // ---------------------------------------------
     // Calls for ed-on-bls12-377
     // ---------------------------------------------
 
@@ -30,6 +42,7 @@ mod benchmarks {
     #[benchmark]
     fn ark_ed_on_bls12_377_msm_te(x: Linear<MSM_LEN_MIN, MSM_LEN_MAX>) {
         let (bases, scalars) = utils::make_msm_args::<ark_ed_on_bls12_377::EdwardsProjective>(x);
+
         #[extrinsic_call]
         ed_on_bls12_377_msm_te(
             RawOrigin::Signed(whitelisted_caller()),
@@ -42,6 +55,7 @@ mod benchmarks {
     #[benchmark]
     fn sub_ed_on_bls12_377_msm_te(x: Linear<MSM_LEN_MIN, MSM_LEN_MAX>) {
         let (bases, scalars) = utils::make_msm_args::<ark_ed_on_bls12_377::EdwardsProjective>(x);
+
         #[extrinsic_call]
         ed_on_bls12_377_msm_te(
             RawOrigin::Signed(whitelisted_caller()),

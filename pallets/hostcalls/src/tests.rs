@@ -9,6 +9,33 @@ const MSM_ITEMS: u32 = 500;
 const SCALAR_WORDS: u32 = 3;
 
 // ---------------------------------------------
+// Tests for bls12-381
+// ---------------------------------------------
+
+fn bls12_381_pairing(optimized: bool) {
+    let (a, b) = make_pairing_args::<ark_bls12_381::G1Affine, ark_bls12_381::G2Affine>();
+
+    new_test_ext().execute_with(|| {
+        assert_ok!(ArkHostcalls::bls12_381_pairing(
+            RuntimeOrigin::none(),
+            a.encode(),
+            b.encode(),
+            optimized
+        ));
+    });
+}
+
+#[test]
+fn ark_bls12_381_pairing() {
+    bls12_381_pairing(false);
+}
+
+#[test]
+fn sub_bls12_381_pairing() {
+    bls12_381_pairing(true);
+}
+
+// ---------------------------------------------
 // Tests for ed-on-bls12-377
 // ---------------------------------------------
 

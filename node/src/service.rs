@@ -27,6 +27,7 @@ use sp_runtime::traits::Block as BlockT;
 use std::sync::Arc;
 
 pub(crate) type CryptoHostcalls = (
+    sp_crypto_ec_utils::ed_on_bls12_377::host_calls::HostFunctions,
     sp_crypto_ec_utils::ed_on_bls12_381_bandersnatch::host_calls::HostFunctions,
     sp_crypto_ec_utils::bls12_381::host_calls::HostFunctions,
 );
