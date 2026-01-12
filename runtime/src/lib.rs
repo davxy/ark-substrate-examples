@@ -172,8 +172,12 @@ mod runtime {
     #[runtime::pallet_index(4)]
     pub type ArkHostcalls = pallet_ark_hostcalls;
 
-    /// Arkworks VRF.
+    /// Arkworks Groth16.
     #[runtime::pallet_index(5)]
+    pub type ArkGroth16 = pallet_ark_groth16;
+
+    /// Arkworks VRF.
+    #[runtime::pallet_index(6)]
     pub type ArkVrf = pallet_ark_vrf;
 }
 
@@ -210,6 +214,8 @@ impl pallet_transaction_payment::Config for Runtime {
 }
 
 impl pallet_ark_hostcalls::Config for Runtime {}
+
+impl pallet_ark_groth16::Config for Runtime {}
 
 parameter_types! {
     pub MaxRingSize: u32 = pallet_ark_vrf::MAX_RING_SIZE;
@@ -264,6 +270,7 @@ frame_benchmarking::define_benchmarks!(
     [pallet_balances, Balances]
     [pallet_timestamp, Timestamp]
     [pallet_ark_hostcalls, ArkHostcalls]
+    [pallet_ark_groth16, ArkGroth16]
     [pallet_ark_vrf, ArkVrf]
 );
 
@@ -337,7 +344,7 @@ impl_runtime_apis! {
     }
 
     impl sp_session::SessionKeys<Block> for Runtime {
-        fn generate_session_keys(_seed: Option<Vec<u8>>) -> Vec<u8> {
+        fn generate_session_keys(_owner: Vec<u8>, _seed: Option<Vec<u8>>) -> sp_session::OpaqueGeneratedSessionKeys {
             Default::default()
         }
 

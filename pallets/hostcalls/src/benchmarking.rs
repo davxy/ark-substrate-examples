@@ -75,7 +75,7 @@ mod benchmarks {
 
     #[benchmark]
     fn ark_bls12_381_mul_affine_g1() {
-        let (base, scalar) = utils::make_mul_affine_args::<bls12_381::G1Affine>();
+        let (base, scalar) = utils::make_mul_affine_args::<ark_bls12_381::G1Affine>();
 
         #[extrinsic_call]
         bls12_381_mul_affine_g1(RawOrigin::None, base.encode(), scalar.encode(), false);
@@ -123,7 +123,7 @@ mod benchmarks {
 
     #[benchmark]
     fn ark_bls12_381_mul_affine_g2() {
-        let (base, scalar) = utils::make_mul_affine_args::<bls12_381::G2Affine>();
+        let (base, scalar) = utils::make_mul_affine_args::<ark_bls12_381::G2Affine>();
 
         #[extrinsic_call]
         bls12_381_mul_affine_g2(RawOrigin::None, base.encode(), scalar.encode(), false);

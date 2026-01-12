@@ -19,11 +19,6 @@ frame-executive = { workspace = true }
 frame-support = { workspace = true }
 frame-system = { workspace = true }
 
-# frame pallets
-pallet-balances = { workspace = true }
-pallet-timestamp = { workspace = true }
-pallet-transaction-payment = { workspace = true }
-
 # primitives
 sp-api = { workspace = true }
 sp-block-builder = { workspace = true }
@@ -46,8 +41,14 @@ pallet-transaction-payment-rpc-runtime-api = { workspace = true }
 frame-benchmarking = { optional = true, workspace = true }
 frame-system-benchmarking = { optional = true, workspace = true }
 
+# frame pallets
+pallet-balances = { workspace = true }
+pallet-timestamp = { workspace = true }
+pallet-transaction-payment = { workspace = true }
+
 # Local pallets
 pallet-ark-hostcalls = { path = "../pallets/hostcalls", default-features = false }
+pallet-ark-groth16 = { path = "../pallets/groth16", default-features = false }
 pallet-ark-vrf = { path = "../pallets/vrf", default-features = false }
 
 [build-dependencies]
@@ -65,6 +66,7 @@ std = [
 	"frame-system/std",
 	"pallet-balances/std",
 	"pallet-ark-hostcalls/std",
+	"pallet-ark-groth16/std",
 	"pallet-ark-vrf/std",
 	"pallet-timestamp/std",
 	"pallet-transaction-payment-rpc-runtime-api/std",
@@ -95,6 +97,7 @@ runtime-benchmarks = [
 	"pallet-timestamp/runtime-benchmarks",
 	"pallet-transaction-payment/runtime-benchmarks",
 	"pallet-ark-hostcalls/runtime-benchmarks",
+	"pallet-ark-groth16/runtime-benchmarks",
 	"pallet-ark-vrf/runtime-benchmarks",
 ]
 small-ring = [

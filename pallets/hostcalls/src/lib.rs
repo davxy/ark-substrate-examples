@@ -1,8 +1,3 @@
-//! A shell pallet built with [`frame`].
-//!
-//! To get started with this pallet, try implementing the guide in
-//! <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html>
-
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(test)]

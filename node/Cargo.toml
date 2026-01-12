@@ -50,13 +50,11 @@ sp-keyring = { workspace = true, default-features = true }
 sp-runtime = { workspace = true, default-features = true }
 sp-timestamp = { workspace = true, default-features = true }
 
-# frame and pallets
+# frame
 frame-system = { workspace = true, default-features = true }
-pallet-transaction-payment = { workspace = true, default-features = true }
-pallet-transaction-payment-rpc = { workspace = true, default-features = true }
 substrate-frame-rpc-system = { workspace = true, default-features = true }
 
-# These dependencies are used for runtime benchmarking
+# Runtime benchmarking
 frame-benchmarking-cli = { workspace = true, default-features = true }
 
 # Local Dependencies
@@ -74,7 +72,6 @@ runtime-benchmarks = [
 	"ark-runtime/runtime-benchmarks",
 	"frame-benchmarking-cli/runtime-benchmarks",
 	"frame-system/runtime-benchmarks",
-	"pallet-transaction-payment/runtime-benchmarks",
 	"sc-service/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 ]

@@ -13,6 +13,7 @@ members = [
   "runtime",
   "pallets/vrf",
   "pallets/hostcalls",
+  "pallets/groth16"
 ]
 
 [workspace.dependencies]
