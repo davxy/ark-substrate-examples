@@ -271,9 +271,6 @@ type RuntimeExecutive = frame_executive::Executive<
 
 #[cfg(feature = "runtime-benchmarks")]
 frame_benchmarking::define_benchmarks!(
-    [frame_system, SystemBench::<Runtime>]
-    [pallet_balances, Balances]
-    [pallet_timestamp, Timestamp]
     [pallet_ark_hostcalls, ArkHostcalls]
     [pallet_ark_groth16, ArkGroth16]
     [pallet_ark_vrf, ArkVrf]
@@ -406,7 +403,6 @@ impl_runtime_apis! {
         ) {
             use frame_benchmarking::BenchmarkList;
             use frame_support::traits::StorageInfoTrait;
-            use frame_system_benchmarking::Pallet as SystemBench;
 
             let mut list = Vec::<BenchmarkList>::new();
             list_benchmarks!(list, extra);
@@ -422,7 +418,6 @@ impl_runtime_apis! {
             use frame_benchmarking::BenchmarkBatch;
             use sp_storage::TrackedStorageKey;
             use frame_support::traits::WhitelistedStorageKeys;
-            use frame_system_benchmarking::Pallet as SystemBench;
 
             let whitelist: Vec<TrackedStorageKey> = AllPalletsWithSystem::whitelisted_storage_keys();
 
