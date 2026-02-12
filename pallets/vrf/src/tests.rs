@@ -1,6 +1,8 @@
-use crate::mock::{MaxBatchSize, MaxRingSize, RuntimeOrigin, Test};
-use crate::{mock::new_test_ext, utils};
-use crate::{Pallet, PublicKeyRaw, RingBuilderPcsParams, RING_BUILDER_DATA, RING_BUILDER_PARAMS};
+use crate::{
+    mock::{new_test_ext, MaxBatchSize, MaxRingSize, RuntimeOrigin, Test},
+    utils, Pallet, PublicKeyRaw, RingBuilderPcsParams, RingProofBatch, RING_BUILDER_DATA,
+    RING_BUILDER_PARAMS,
+};
 
 const TEST_RING_SIZE: u32 = 42;
 
@@ -42,7 +44,7 @@ fn ring_verify_batch(optimized: bool) {
     let members = ring_commit(optimized);
     let batch_size = MaxBatchSize::get().min(3);
     let batch = utils::ring_verify_params_gen(MaxRingSize::get(), Some(&members), batch_size);
-    let batch: crate::RingProofBatch<MaxBatchSize> = batch.try_into().unwrap();
+    let batch: RingProofBatch<MaxBatchSize> = batch.try_into().unwrap();
     Pallet::<Test>::ring_verify_batch(RuntimeOrigin::none(), batch, optimized).unwrap()
 }
 

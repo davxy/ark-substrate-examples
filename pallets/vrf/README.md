@@ -97,6 +97,36 @@ Time ~=    17190
     + x    14.58
               µs
 
+## Verification (Naive Batching)
+
+### Pure WASM
+
+Data points distribution:
+    x   mean µs  sigma µs       %
+    1     30140     88.23    0.2%
+    2     55910      2540    4.5%
+    3     76610      2964    3.8%
+    4    100900      4921    4.8%
+    5    128900      6964    5.3%
+
+Time ~=     5710
+    + x    24260
+              µs
+
+### Hostcalls
+
+Data points distribution:
+    x   mean µs  sigma µs       %
+    1     19160      1455    7.5%
+    2     29810      2725    9.1%
+    3     43660      3998    9.1%
+    4     52990      1914    3.6%
+    5     65920      2690    4.0%
+
+Time ~=     7299
+    + x    11670
+              µs
+
 ---
 
 # IETF VRF

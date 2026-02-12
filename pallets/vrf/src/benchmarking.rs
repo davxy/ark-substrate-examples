@@ -10,6 +10,9 @@ use frame_system::RawOrigin;
 const RING_SIZE_MIN: u32 = 1;
 const RING_SIZE_MAX: u32 = 50;
 
+const BATCH_SIZE_MIN: u32 = 1;
+const BATCH_SIZE_MAX: u32 = 5;
+
 #[benchmarks]
 mod benchmarks {
     use super::*;
@@ -88,8 +91,8 @@ mod benchmarks {
 
     /// Verify a single ring proof
     #[benchmark]
-    fn ark_ring_vrf_verify(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
-        let members = utils::ring_members_gen_raw(x);
+    fn ark_ring_vrf_verify() {
+        let members = utils::ring_members_gen_raw(RING_SIZE_MAX);
         let item = utils::ring_verify_params_gen(T::MaxRingSize::get(), Some(&members), 1)[0];
 
         Pallet::<T>::push_members_impl::<ArkSuite>(members);
@@ -101,8 +104,8 @@ mod benchmarks {
 
     /// Same as `ark_ring_vrf_verify` with Substrate hostcalls
     #[benchmark]
-    fn sub_ring_vrf_verify(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
-        let members = utils::ring_members_gen_raw(x);
+    fn sub_ring_vrf_verify() {
+        let members = utils::ring_members_gen_raw(RING_SIZE_MAX);
         let item = utils::ring_verify_params_gen(T::MaxRingSize::get(), Some(&members), 1)[0];
 
         Pallet::<T>::push_members_impl::<ArkSuite>(members);
@@ -110,6 +113,36 @@ mod benchmarks {
 
         #[extrinsic_call]
         ring_verify(RawOrigin::None, item.input, item.output, item.proof, true);
+    }
+
+    /// Verify a batch of ring proofs
+    ///
+    /// `x` is the batch length
+    #[benchmark]
+    fn ark_ring_vrf_verify_batch(x: Linear<BATCH_SIZE_MIN, BATCH_SIZE_MAX>) {
+        let members = utils::ring_members_gen_raw(RING_SIZE_MAX);
+        let batch = utils::ring_verify_params_gen(T::MaxRingSize::get(), Some(&members), x);
+        let batch = batch.try_into().unwrap();
+
+        Pallet::<T>::push_members_impl::<ArkSuite>(members);
+        Pallet::<T>::commit_impl::<ArkSuite>();
+
+        #[extrinsic_call]
+        ring_verify_batch(RawOrigin::None, batch, false);
+    }
+
+    /// Same as `ark_ring_vrf_verify_batch` with Substrate hostcalls
+    #[benchmark]
+    fn sub_ring_vrf_verify_batch(x: Linear<BATCH_SIZE_MIN, BATCH_SIZE_MAX>) {
+        let members = utils::ring_members_gen_raw(RING_SIZE_MAX);
+        let batch = utils::ring_verify_params_gen(T::MaxRingSize::get(), Some(&members), x);
+        let batch = batch.try_into().unwrap();
+
+        Pallet::<T>::push_members_impl::<SubSuite>(members);
+        Pallet::<T>::commit_impl::<SubSuite>();
+
+        #[extrinsic_call]
+        ring_verify_batch(RawOrigin::None, batch, true);
     }
 
     #[benchmark]
