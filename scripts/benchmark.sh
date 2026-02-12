@@ -14,9 +14,9 @@ if [[ $extra_arg != "--no-compile" ]] || [[ ! -f $binary ]]; then
 fi
 
 # How many repetitions of each benchmark should be run
-REPEAT=${REPEAT:-3}
+repeat=${REPEAT:-3}
 # How many samples we should take across the variable components
-STEPS=${STEPS:-30}
+steps=${STEPS:-30}
 
 results_dir="./pallets/${pallet#pallet_ark_}/src"
 
