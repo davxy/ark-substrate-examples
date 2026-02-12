@@ -14,8 +14,14 @@ const RING_SIZE_MAX: u32 = 50;
 mod benchmarks {
     use super::*;
 
+    /// Ring commitment with buffered keys
+    ///
+    /// `x` keys are stored in the `RingKeys` buffer before running the benchmark.
+    /// We're benchmarking the combination of:
+    /// 1. Accumulation of the `x` buffered keys
+    /// 2. Final ring commitment
     #[benchmark]
-    fn ark_ring_vrf_commit_buffered(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
+    fn ark_ring_vrf_accumulate_and_commit(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
         let members = utils::ring_members_gen_raw(x);
         let members: BoundedVec<PublicKeyRaw, T::MaxRingSize> = members.try_into().unwrap();
 
@@ -25,8 +31,9 @@ mod benchmarks {
         ring_commit(RawOrigin::None, false);
     }
 
+    /// Same as `ark_ring_vrf_accumulate_and_commit` but using the Substrate hostcalls.
     #[benchmark]
-    fn sub_ring_vrf_commit_buffered(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
+    fn sub_ring_vrf_accumulate_and_commit(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
         let members = utils::ring_members_gen_raw(x);
         let members: BoundedVec<PublicKeyRaw, T::MaxRingSize> = members.try_into().unwrap();
 
@@ -36,9 +43,32 @@ mod benchmarks {
         ring_commit(RawOrigin::None, true);
     }
 
+    /// Ring accumulation
+    ///
+    /// `x` keys are accumulated (no commit)
     #[benchmark]
-    fn ark_ring_vrf_commit_unbuffered(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
+    fn ark_ring_vrf_accumulate(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
         let members = utils::ring_members_gen_raw(x);
+
+        #[extrinsic_call]
+        push_members(RawOrigin::None, members, false);
+    }
+
+    /// Same as `ark_ring_vrf_accumulate` but with substrate hostcalls
+    #[benchmark]
+    fn sub_ring_vrf_accumulate(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
+        let members = utils::ring_members_gen_raw(x);
+
+        #[extrinsic_call]
+        push_members(RawOrigin::None, members, true);
+    }
+
+    /// Ring commitment
+    ///
+    /// Keys are assumed to be already accumulated.
+    #[benchmark]
+    fn ark_ring_vrf_commit() {
+        let members = utils::ring_members_gen_raw(RING_SIZE_MAX);
 
         Pallet::<T>::push_members_impl::<ArkSuite>(members);
 
@@ -46,9 +76,10 @@ mod benchmarks {
         ring_commit(RawOrigin::None, false);
     }
 
+    /// Same as `ark_ring_vrf_commit_accumulated` but using the Substrate hostcalls.
     #[benchmark]
-    fn sub_ring_vrf_commit_unbuffered(x: Linear<RING_SIZE_MIN, RING_SIZE_MAX>) {
-        let members = utils::ring_members_gen_raw(x);
+    fn sub_ring_vrf_commit() {
+        let members = utils::ring_members_gen_raw(RING_SIZE_MAX);
         Pallet::<T>::push_members_impl::<ArkSuite>(members);
 
         #[extrinsic_call]

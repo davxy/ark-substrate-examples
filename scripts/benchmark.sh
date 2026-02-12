@@ -16,9 +16,10 @@ fi
 # How many repetitions of each benchmark should be run
 repeat=${REPEAT:-3}
 # How many samples we should take across the variable components
-steps=${STEPS:-30}
+steps=${STEPS:-5}
 
-results_dir="./pallets/${pallet#pallet_ark_}/src"
+results_dir="./results/${pallet#pallet_ark_}"
+mkdir -p "$results_dir"
 
 if [[ $pallet == "all" ]]; then
     pallet="*"
