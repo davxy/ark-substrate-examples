@@ -49,23 +49,31 @@
 
 # pallet_ark_vrf
 
+Storing SRS items uncompressed (96 bytes instead of 48) eliminates the point
+decompression cost (field square root) on every `fetch_srs_range` call.
+The accumulate operations (push of new members during ring commitment
+construction), which are the main consumers of SRS reads, show a
+~2.5-3x speedup in the substrate column at scale (e.g. x_50: 18.95 ms -> 6.44 ms).
+The arkworks column also benefits (~35-40%) as both paths read SRS from storage.
+Verify and IETF operations are unaffected (no SRS reads).
+
 | extrinsic | arkworks | substrate | speedup |
 |-----------|----------|-----------|---------|
-| ietf_vrf_verify | 2.17 ms | 700.12 us | 3.09x |
-| ring_vrf_accumulate_and_commit_x_1 | 3.92 ms | 1.67 ms | 2.35x |
-| ring_vrf_accumulate_and_commit_x_13 | 19.94 ms | 5.73 ms | 3.48x |
-| ring_vrf_accumulate_and_commit_x_25 | 33.92 ms | 10.05 ms | 3.37x |
-| ring_vrf_accumulate_and_commit_x_37 | 48.48 ms | 14.07 ms | 3.44x |
-| ring_vrf_accumulate_and_commit_x_50 | 59.58 ms | 18.29 ms | 3.26x |
-| ring_vrf_accumulate_x_1 | 3.63 ms | 1.63 ms | 2.23x |
-| ring_vrf_accumulate_x_13 | 19.64 ms | 6.30 ms | 3.12x |
-| ring_vrf_accumulate_x_25 | 31.44 ms | 10.44 ms | 3.01x |
-| ring_vrf_accumulate_x_37 | 48.44 ms | 14.69 ms | 3.30x |
-| ring_vrf_accumulate_x_50 | 65.76 ms | 18.95 ms | 3.47x |
-| ring_vrf_commit | 23.87 us | 40.25 us | 0.59x |
-| ring_vrf_verify | 30.63 ms | 18.39 ms | 1.67x |
-| ring_vrf_verify_batch_x_1 | 30.88 ms | 19.59 ms | 1.58x |
-| ring_vrf_verify_batch_x_4 | 99.47 ms | 53.23 ms | 1.87x |
-| ring_vrf_verify_batch_x_8 | 190.14 ms | 100.46 ms | 1.89x |
-| ring_vrf_verify_batch_x_12 | 285.28 ms | 140.07 ms | 2.04x |
-| ring_vrf_verify_batch_x_16 | 368.93 ms | 184.22 ms | 2.00x |
+| ietf_vrf_verify | 2.14 ms | 621.79 us | 3.44x |
+| ring_vrf_accumulate_and_commit_x_1 | 3.40 ms | 1.45 ms | 2.35x |
+| ring_vrf_accumulate_and_commit_x_13 | 13.03 ms | 2.60 ms | 5.01x |
+| ring_vrf_accumulate_and_commit_x_25 | 20.66 ms | 3.86 ms | 5.36x |
+| ring_vrf_accumulate_and_commit_x_37 | 32.31 ms | 5.25 ms | 6.16x |
+| ring_vrf_accumulate_and_commit_x_50 | 37.69 ms | 6.74 ms | 5.59x |
+| ring_vrf_accumulate_x_1 | 3.49 ms | 1.45 ms | 2.40x |
+| ring_vrf_accumulate_x_13 | 11.91 ms | 2.86 ms | 4.16x |
+| ring_vrf_accumulate_x_25 | 18.94 ms | 3.98 ms | 4.75x |
+| ring_vrf_accumulate_x_37 | 29.56 ms | 5.60 ms | 5.28x |
+| ring_vrf_accumulate_x_50 | 34.80 ms | 6.44 ms | 5.41x |
+| ring_vrf_commit | 23.71 us | 47.44 us | 0.50x |
+| ring_vrf_verify | 31.05 ms | 17.61 ms | 1.76x |
+| ring_vrf_verify_batch_x_1 | 31.09 ms | 19.06 ms | 1.63x |
+| ring_vrf_verify_batch_x_4 | 97.26 ms | 49.82 ms | 1.95x |
+| ring_vrf_verify_batch_x_8 | 185.58 ms | 100.66 ms | 1.84x |
+| ring_vrf_verify_batch_x_12 | 274.60 ms | 145.68 ms | 1.89x |
+| ring_vrf_verify_batch_x_16 | 363.28 ms | 180.66 ms | 2.01x |
