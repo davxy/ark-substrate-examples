@@ -283,9 +283,10 @@ pub mod pallet {
                 let page_off = i % SRS_PAGE_SIZE;
                 let raw = &mut srs_page.0[page_off];
                 item.serialize_uncompressed(&mut raw.0[..]).unwrap();
-                if page_off == SRS_PAGE_SIZE - 1 {
+                if page_off == SRS_PAGE_SIZE - 1 || i == builder_pcs_params.0.len() - 1 {
                     let page_idx = i / SRS_PAGE_SIZE;
-                    Srs::<T>::insert(page_idx as u32, srs_page.clone());
+                    Srs::<T>::insert(page_idx as u32, srs_page);
+                    srs_page = SrsPage::default();
                 }
             }
 
@@ -465,7 +466,7 @@ pub mod pallet {
         }
 
         pub(crate) fn commit_impl<S: RingSuite>() {
-            let buffered_members = RingKeys::<T>::get().unwrap_or_default();
+            let buffered_members = RingKeys::<T>::take().unwrap_or_default();
             if !buffered_members.is_empty() {
                 Self::push_members_impl::<S>(buffered_members.to_vec());
             }
