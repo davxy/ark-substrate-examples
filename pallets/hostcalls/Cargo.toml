@@ -49,6 +49,7 @@ std = [
 	"ark-ec/std",
 	"ark-ff/std",
 	"ark-std/std",
+	"ark-std/parallel",
 	"ark-scale/std",
 	"ark-bls12-381/std",
 	"ark-ed-on-bls12-377/std",
