@@ -99,7 +99,7 @@ const RING_PROOF_SERIALIZED_SIZE: usize = 752;
 
 const RING_VERIFIER_KEY_SERIALIZED_SIZE: usize = 384;
 
-const SRS_ITEM_SERIALIZED_SIZE: usize = 48;
+const SRS_ITEM_SERIALIZED_SIZE: usize = 96;
 const RING_BUILDER_SERIALIZED_SIZE: usize = 848;
 
 #[derive(
@@ -282,7 +282,7 @@ pub mod pallet {
             for (i, item) in builder_pcs_params.0.iter().enumerate() {
                 let page_off = i % SRS_PAGE_SIZE;
                 let raw = &mut srs_page.0[page_off];
-                item.serialize_compressed(&mut raw.0[..]).unwrap();
+                item.serialize_uncompressed(&mut raw.0[..]).unwrap();
                 if page_off == SRS_PAGE_SIZE - 1 {
                     let page_idx = i / SRS_PAGE_SIZE;
                     Srs::<T>::insert(page_idx as u32, srs_page.clone());
@@ -537,7 +537,7 @@ pub mod pallet {
                     .skip(range.start % SRS_PAGE_SIZE)
                     .take(range.end - range.start)
                     .map(|data| {
-                        ark_vrf::ring::G1Affine::<S>::deserialize_compressed(&data.0[..]).unwrap()
+                        ark_vrf::ring::G1Affine::<S>::deserialize_uncompressed_unchecked(&data.0[..]).unwrap()
                     })
                     .collect(),
             )
