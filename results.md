@@ -2,9 +2,9 @@
 
 | extrinsic | arkworks | substrate | speedup |
 |-----------|----------|-----------|---------|
-| bls12_377_groth16_verify | 16.31 ms | 2.86 ms | 5.69x |
-| bls12_381_groth16_verify | 15.63 ms | 2.74 ms | 5.71x |
-| bw6_761_groth16_verify | 84.06 ms | 10.73 ms | 7.84x |
+| bls12_377_groth16_verify | 17.64 ms | 3.24 ms | 5.44x |
+| bls12_381_groth16_verify | 16.67 ms | 2.89 ms | 5.77x |
+| bw6_761_groth16_verify | 86.70 ms | 10.69 ms | 8.11x |
 
 # pallet_ark_hostcalls
 
