@@ -6408,6 +6408,7 @@ dependencies = [
  "ark-ec 0.5.0",
  "ark-ed-on-bls12-377",
  "ark-ed-on-bls12-381-bandersnatch",
+ "ark-ff 0.5.0",
  "ark-scale",
  "ark-std 0.5.0",
  "frame-benchmarking",

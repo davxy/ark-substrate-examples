@@ -2,50 +2,50 @@
 
 | extrinsic | arkworks | substrate | speedup |
 |-----------|----------|-----------|---------|
-| bls12_377_groth16_verify | 16.31 ms | 2.86 ms | 5.69x |
-| bls12_381_groth16_verify | 15.63 ms | 2.74 ms | 5.71x |
-| bw6_761_groth16_verify | 84.06 ms | 10.73 ms | 7.84x |
+| bls12_377_groth16_verify | 17.66 ms | 3.11 ms | 5.68x |
+| bls12_381_groth16_verify | 16.89 ms | 2.86 ms | 5.91x |
+| bw6_761_groth16_verify | 76.70 ms | 9.99 ms | 7.68x |
 
 # pallet_ark_hostcalls
 
 | extrinsic | arkworks | substrate | speedup |
 |-----------|----------|-----------|---------|
-| bls12_381_msm_g1_x_10 | 10.35 ms | 3.13 ms | 3.31x |
-| bls12_381_msm_g1_x_32 | 26.37 ms | 8.69 ms | 3.03x |
-| bls12_381_msm_g1_x_55 | 43.23 ms | 14.01 ms | 3.09x |
-| bls12_381_msm_g1_x_77 | 57.22 ms | 20.88 ms | 2.74x |
-| bls12_381_msm_g1_x_100 | 71.83 ms | 26.02 ms | 2.76x |
-| bls12_381_msm_g2_x_10 | 23.74 ms | 7.67 ms | 3.10x |
-| bls12_381_msm_g2_x_32 | 63.14 ms | 22.70 ms | 2.78x |
-| bls12_381_msm_g2_x_55 | 108.63 ms | 37.45 ms | 2.90x |
-| bls12_381_msm_g2_x_77 | 135.82 ms | 48.78 ms | 2.78x |
-| bls12_381_msm_g2_x_100 | 182.66 ms | 66.55 ms | 2.74x |
-| bls12_381_mul_affine_g1 | 1.57 ms | 1.58 ms | 0.99x |
-| bls12_381_mul_affine_g2 | 3.83 ms | 3.86 ms | 0.99x |
-| bls12_381_mul_projective_g1 | 784.37 us | 125.89 us | 6.23x |
-| bls12_381_mul_projective_g2 | 3.40 ms | 518.23 us | 6.56x |
-| bls12_381_pairing | 8.02 ms | 1.98 ms | 4.05x |
-| ed_on_bls12_377_msm_te_x_10 | 9.10 ms | 2.59 ms | 3.51x |
-| ed_on_bls12_377_msm_te_x_32 | 25.32 ms | 7.37 ms | 3.43x |
-| ed_on_bls12_377_msm_te_x_55 | 42.18 ms | 12.42 ms | 3.40x |
-| ed_on_bls12_377_msm_te_x_77 | 55.88 ms | 16.22 ms | 3.44x |
-| ed_on_bls12_377_msm_te_x_100 | 69.96 ms | 20.70 ms | 3.38x |
-| ed_on_bls12_377_mul_affine_te | 1.12 ms | 298.76 us | 3.74x |
-| ed_on_bls12_377_mul_projective_te | 489.95 us | 96.99 us | 5.05x |
-| ed_on_bls12_381_bandersnatch_msm_sw_x_10 | 8.84 ms | 2.79 ms | 3.17x |
-| ed_on_bls12_381_bandersnatch_msm_sw_x_32 | 25.60 ms | 7.49 ms | 3.42x |
-| ed_on_bls12_381_bandersnatch_msm_sw_x_55 | 43.00 ms | 12.27 ms | 3.50x |
-| ed_on_bls12_381_bandersnatch_msm_sw_x_77 | 58.68 ms | 16.38 ms | 3.58x |
-| ed_on_bls12_381_bandersnatch_msm_sw_x_100 | 74.74 ms | 21.34 ms | 3.50x |
-| ed_on_bls12_381_bandersnatch_msm_te_x_10 | 9.63 ms | 2.32 ms | 4.15x |
-| ed_on_bls12_381_bandersnatch_msm_te_x_32 | 26.65 ms | 6.19 ms | 4.31x |
-| ed_on_bls12_381_bandersnatch_msm_te_x_55 | 44.61 ms | 9.96 ms | 4.48x |
-| ed_on_bls12_381_bandersnatch_msm_te_x_77 | 54.34 ms | 13.59 ms | 4.00x |
-| ed_on_bls12_381_bandersnatch_msm_te_x_100 | 67.69 ms | 19.04 ms | 3.56x |
-| ed_on_bls12_381_bandersnatch_mul_affine_sw | 1.22 ms | 329.20 us | 3.69x |
-| ed_on_bls12_381_bandersnatch_mul_affine_te | 1.03 ms | 248.23 us | 4.14x |
-| ed_on_bls12_381_bandersnatch_mul_projective_sw | 661.87 us | 128.76 us | 5.14x |
-| ed_on_bls12_381_bandersnatch_mul_projective_te | 482.62 us | 90.67 us | 5.32x |
+| bls12_381_msm_g1_x_10 | 10.05 ms | 3.08 ms | 3.27x |
+| bls12_381_msm_g1_x_32 | 26.93 ms | 8.84 ms | 3.05x |
+| bls12_381_msm_g1_x_55 | 44.43 ms | 13.65 ms | 3.26x |
+| bls12_381_msm_g1_x_77 | 58.58 ms | 20.26 ms | 2.89x |
+| bls12_381_msm_g1_x_100 | 73.34 ms | 25.81 ms | 2.84x |
+| bls12_381_msm_g2_x_10 | 25.63 ms | 7.88 ms | 3.25x |
+| bls12_381_msm_g2_x_32 | 62.51 ms | 22.16 ms | 2.82x |
+| bls12_381_msm_g2_x_55 | 101.72 ms | 37.17 ms | 2.74x |
+| bls12_381_msm_g2_x_77 | 145.59 ms | 51.78 ms | 2.81x |
+| bls12_381_msm_g2_x_100 | 164.95 ms | 63.61 ms | 2.59x |
+| bls12_381_mul_affine_g1 | 1.61 ms | 1.60 ms | 1.00x |
+| bls12_381_mul_affine_g2 | 3.78 ms | 3.77 ms | 1.00x |
+| bls12_381_mul_projective_g1 | 845.98 us | 119.68 us | 7.07x |
+| bls12_381_mul_projective_g2 | 3.39 ms | 506.80 us | 6.69x |
+| bls12_381_pairing | 7.88 ms | 1.94 ms | 4.05x |
+| ed_on_bls12_377_msm_te_x_10 | 9.03 ms | 2.60 ms | 3.48x |
+| ed_on_bls12_377_msm_te_x_32 | 24.90 ms | 6.79 ms | 3.66x |
+| ed_on_bls12_377_msm_te_x_55 | 45.54 ms | 11.40 ms | 3.99x |
+| ed_on_bls12_377_msm_te_x_77 | 60.32 ms | 15.81 ms | 3.82x |
+| ed_on_bls12_377_msm_te_x_100 | 75.53 ms | 20.27 ms | 3.73x |
+| ed_on_bls12_377_mul_affine_te | 1.11 ms | 302.07 us | 3.68x |
+| ed_on_bls12_377_mul_projective_te | 493.13 us | 86.13 us | 5.73x |
+| ed_on_bls12_381_bandersnatch_msm_sw_x_10 | 9.14 ms | 2.54 ms | 3.60x |
+| ed_on_bls12_381_bandersnatch_msm_sw_x_32 | 26.52 ms | 7.35 ms | 3.61x |
+| ed_on_bls12_381_bandersnatch_msm_sw_x_55 | 44.22 ms | 11.67 ms | 3.79x |
+| ed_on_bls12_381_bandersnatch_msm_sw_x_77 | 60.32 ms | 16.15 ms | 3.74x |
+| ed_on_bls12_381_bandersnatch_msm_sw_x_100 | 76.90 ms | 20.90 ms | 3.68x |
+| ed_on_bls12_381_bandersnatch_msm_te_x_10 | 9.55 ms | 2.11 ms | 4.54x |
+| ed_on_bls12_381_bandersnatch_msm_te_x_32 | 26.48 ms | 5.86 ms | 4.52x |
+| ed_on_bls12_381_bandersnatch_msm_te_x_55 | 40.88 ms | 9.69 ms | 4.22x |
+| ed_on_bls12_381_bandersnatch_msm_te_x_77 | 53.37 ms | 14.08 ms | 3.79x |
+| ed_on_bls12_381_bandersnatch_msm_te_x_100 | 66.68 ms | 17.18 ms | 3.88x |
+| ed_on_bls12_381_bandersnatch_mul_affine_sw | 1.24 ms | 331.13 us | 3.75x |
+| ed_on_bls12_381_bandersnatch_mul_affine_te | 969.43 us | 241.48 us | 4.01x |
+| ed_on_bls12_381_bandersnatch_mul_projective_sw | 659.51 us | 125.91 us | 5.24x |
+| ed_on_bls12_381_bandersnatch_mul_projective_te | 456.86 us | 85.76 us | 5.33x |
 
 # pallet_ark_vrf
 

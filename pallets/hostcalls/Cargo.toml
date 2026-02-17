@@ -24,6 +24,7 @@ sp-crypto-ec-utils = { workspace = true }
 
 # Arkworks deps
 ark-ec = { version = "0.5.0", default-features = false }
+ark-ff = { version = "0.5.0", default-features = false, features = ["asm"] }
 ark-std = { version = "0.5.0", default-features = false }
 ark-scale = { version = "0.0.13", default-features = false, features = ["hazmat"] }
 ark-bls12-381 = { version = "0.5.0", default-features = false }
@@ -46,7 +47,9 @@ std = [
 	"sp-io/std",
 	# Arkworks deps
 	"ark-ec/std",
+	"ark-ff/std",
 	"ark-std/std",
+	"ark-std/parallel",
 	"ark-scale/std",
 	"ark-bls12-381/std",
 	"ark-ed-on-bls12-377/std",
