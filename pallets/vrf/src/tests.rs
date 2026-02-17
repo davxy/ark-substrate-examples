@@ -88,6 +88,68 @@ fn sub_ring_verify_batch() {
     new_test_ext().execute_with(|| ring_verify_batch(true));
 }
 
+fn ring_commit_buffered(optimized: bool) -> Vec<PublicKeyRaw> {
+    let origin = RuntimeOrigin::none();
+    let members = utils::ring_members_gen_raw(TEST_RING_SIZE);
+    for member in &members {
+        Pallet::<Test>::push_member_buffered(origin.clone(), *member).unwrap();
+    }
+    Pallet::<Test>::ring_commit(origin, optimized).unwrap();
+    members
+}
+
+fn ring_verify_buffered(optimized: bool) {
+    let members = ring_commit_buffered(optimized);
+    let proof = utils::ring_verify_params_gen(MaxRingSize::get(), Some(&members), 1)[0];
+    Pallet::<Test>::ring_verify(
+        RuntimeOrigin::none(),
+        proof.input,
+        proof.output,
+        proof.proof,
+        optimized,
+    )
+    .unwrap()
+}
+
+#[test]
+fn ark_ring_verify_buffered() {
+    new_test_ext().execute_with(|| ring_verify_buffered(false));
+}
+
+#[test]
+fn sub_ring_verify_buffered() {
+    new_test_ext().execute_with(|| ring_verify_buffered(true));
+}
+
+#[test]
+fn sub_ring_commit_twice() {
+    new_test_ext().execute_with(|| {
+        // First cycle: commit and verify
+        let members1 = ring_commit(true);
+        let proof = utils::ring_verify_params_gen(MaxRingSize::get(), Some(&members1), 1)[0];
+        Pallet::<Test>::ring_verify(
+            RuntimeOrigin::none(),
+            proof.input,
+            proof.output,
+            proof.proof,
+            true,
+        )
+        .unwrap();
+
+        // Second cycle: commit_impl resets, so we can build a new ring
+        let members2 = ring_commit(true);
+        let proof = utils::ring_verify_params_gen(MaxRingSize::get(), Some(&members2), 1)[0];
+        Pallet::<Test>::ring_verify(
+            RuntimeOrigin::none(),
+            proof.input,
+            proof.output,
+            proof.proof,
+            true,
+        )
+        .unwrap();
+    });
+}
+
 fn backend_works(pregen_params: bool) {
     use ark_vrf::reexports::ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
     use ark_vrf::ring::{Prover, Verifier};

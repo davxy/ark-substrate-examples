@@ -467,24 +467,37 @@ pub mod pallet {
 
         pub(crate) fn commit_impl<S: RingSuite>() {
             let buffered_members = RingKeys::<T>::take().unwrap_or_default();
-            if !buffered_members.is_empty() {
-                Self::push_members_impl::<S>(buffered_members.to_vec());
-            }
 
-            log::debug!("Committing ring");
-
-            let builder_raw = RingBuilder::<T>::get().unwrap();
-            let builder =
+            let builder_raw = RingBuilder::<T>::take().unwrap();
+            let mut builder =
                 ark_vrf::ring::RingVerifierKeyBuilder::<S>::deserialize_uncompressed_unchecked(
                     &builder_raw.0[..],
                 )
                 .unwrap();
+
+            if !buffered_members.is_empty() {
+                // Ring size already incremented by push_member_buffered
+                let new_members = buffered_members
+                    .into_iter()
+                    .map(|m| {
+                        ark_vrf::AffinePoint::<S>::deserialize_compressed_unchecked(&m.0[..])
+                            .unwrap()
+                    })
+                    .collect::<Vec<_>>();
+                builder
+                    .append(&new_members, Self::fetch_srs_range::<S>)
+                    .unwrap();
+            }
+
+            log::debug!("Committing ring");
             let verifier_key = builder.finalize();
             let mut verifier_key_raw = RingVerifierKeyRaw([0u8; RING_VERIFIER_KEY_SERIALIZED_SIZE]);
             verifier_key
                 .serialize_compressed(&mut verifier_key_raw.0[..])
                 .unwrap();
             RingVerifierKey::<T>::set(Some(verifier_key_raw));
+
+            Self::ring_reset_impl();
         }
 
         pub(crate) fn push_members_impl<S: RingSuite>(new_members: Vec<PublicKeyRaw>) {
@@ -538,7 +551,10 @@ pub mod pallet {
                     .skip(range.start % SRS_PAGE_SIZE)
                     .take(range.end - range.start)
                     .map(|data| {
-                        ark_vrf::ring::G1Affine::<S>::deserialize_uncompressed_unchecked(&data.0[..]).unwrap()
+                        ark_vrf::ring::G1Affine::<S>::deserialize_uncompressed_unchecked(
+                            &data.0[..],
+                        )
+                        .unwrap()
                     })
                     .collect(),
             )
