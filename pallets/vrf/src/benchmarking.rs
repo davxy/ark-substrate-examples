@@ -11,7 +11,7 @@ const RING_SIZE_MIN: u32 = 1;
 const RING_SIZE_MAX: u32 = 50;
 
 const BATCH_SIZE_MIN: u32 = 1;
-const BATCH_SIZE_MAX: u32 = 5;
+const BATCH_SIZE_MAX: u32 = 16;
 
 #[benchmarks]
 mod benchmarks {
