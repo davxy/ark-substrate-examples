@@ -470,7 +470,7 @@ pub mod pallet {
 
             let builder_raw = RingBuilder::<T>::take().unwrap();
             let mut builder =
-                ark_vrf::ring::RingVerifierKeyBuilder::<S>::deserialize_uncompressed_unchecked(
+                ark_vrf::ring::VerifierKeyBuilder::<S>::deserialize_uncompressed_unchecked(
                     &builder_raw.0[..],
                 )
                 .unwrap();
@@ -505,7 +505,7 @@ pub mod pallet {
 
             let mut builder_raw = RingBuilder::<T>::get().unwrap();
             let mut builder =
-                ark_vrf::ring::RingVerifierKeyBuilder::<S>::deserialize_uncompressed_unchecked(
+                ark_vrf::ring::VerifierKeyBuilder::<S>::deserialize_uncompressed_unchecked(
                     &builder_raw.0[..],
                 )
                 .unwrap();

@@ -802,9 +802,26 @@ dependencies = [
  "ark-std 0.5.0",
  "digest 0.10.7",
  "rand_chacha 0.3.1",
+ "sha2 0.10.9",
+ "w3f-ring-proof 0.0.2",
+ "zeroize",
+]
+
+[[package]]
+name = "ark-vrf"
+version = "0.2.0"
+dependencies = [
+ "ark-bls12-381 0.5.0",
+ "ark-ec 0.5.0",
+ "ark-ed-on-bls12-381-bandersnatch",
+ "ark-ff 0.5.0",
+ "ark-serialize 0.5.0",
+ "ark-std 0.5.0",
+ "digest 0.10.7",
+ "rand_chacha 0.3.1",
  "rayon",
  "sha2 0.10.9",
- "w3f-ring-proof",
+ "w3f-ring-proof 0.0.5",
  "zeroize",
 ]
 
@@ -6425,7 +6442,7 @@ dependencies = [
 name = "pallet-ark-vrf"
 version = "0.1.0"
 dependencies = [
- "ark-vrf",
+ "ark-vrf 0.2.0",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
@@ -10453,7 +10470,7 @@ name = "sp-core"
 version = "28.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk#4b934d0a252f86568d92ac3baa56584bbd14e782"
 dependencies = [
- "ark-vrf",
+ "ark-vrf 0.1.1",
  "array-bytes",
  "bip39",
  "bitflags 1.3.2",
@@ -12387,6 +12404,20 @@ dependencies = [
  "ark-serialize 0.5.0",
  "ark-std 0.5.0",
  "merlin",
+]
+
+[[package]]
+name = "w3f-pcs"
+version = "0.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ea1046a1deb6d26c34ba2d1f1bab4222d695d126502ee765f80b021753cb674"
+dependencies = [
+ "ark-ec 0.5.0",
+ "ark-ff 0.5.0",
+ "ark-poly 0.5.0",
+ "ark-serialize 0.5.0",
+ "ark-std 0.5.0",
+ "merlin",
  "rayon",
 ]
 
@@ -12403,8 +12434,24 @@ dependencies = [
  "ark-std 0.5.0",
  "getrandom_or_panic",
  "rand_core 0.6.4",
+ "w3f-pcs 0.0.2",
+]
+
+[[package]]
+name = "w3f-plonk-common"
+version = "0.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "488384ac7f585606fb72451da79ec74cd07280c38ab6a05da1d8336c3a8447db"
+dependencies = [
+ "ark-ec 0.5.0",
+ "ark-ff 0.5.0",
+ "ark-poly 0.5.0",
+ "ark-serialize 0.5.0",
+ "ark-std 0.5.0",
+ "getrandom_or_panic",
+ "rand_core 0.6.4",
  "rayon",
- "w3f-pcs",
+ "w3f-pcs 0.0.5",
 ]
 
 [[package]]
@@ -12419,9 +12466,25 @@ dependencies = [
  "ark-serialize 0.5.0",
  "ark-std 0.5.0",
  "ark-transcript",
+ "w3f-pcs 0.0.2",
+ "w3f-plonk-common 0.0.2",
+]
+
+[[package]]
+name = "w3f-ring-proof"
+version = "0.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e3f103aeac6badf788d02a23443bedcb79ad49ac55e266e47dd6ee0cac3a443"
+dependencies = [
+ "ark-ec 0.5.0",
+ "ark-ff 0.5.0",
+ "ark-poly 0.5.0",
+ "ark-serialize 0.5.0",
+ "ark-std 0.5.0",
+ "ark-transcript",
  "rayon",
- "w3f-pcs",
- "w3f-plonk-common",
+ "w3f-pcs 0.0.5",
+ "w3f-plonk-common 0.0.5",
 ]
 
 [[package]]
