@@ -59,21 +59,21 @@ Verify and IETF operations are unaffected (no SRS reads).
 
 | extrinsic | arkworks | substrate | speedup |
 |-----------|----------|-----------|---------|
-| ietf_vrf_verify | 2.14 ms | 621.79 us | 3.44x |
-| ring_vrf_accumulate_and_commit_x_1 | 3.40 ms | 1.45 ms | 2.35x |
-| ring_vrf_accumulate_and_commit_x_13 | 13.03 ms | 2.60 ms | 5.01x |
-| ring_vrf_accumulate_and_commit_x_25 | 20.66 ms | 3.86 ms | 5.36x |
-| ring_vrf_accumulate_and_commit_x_37 | 32.31 ms | 5.25 ms | 6.16x |
-| ring_vrf_accumulate_and_commit_x_50 | 37.69 ms | 6.74 ms | 5.59x |
-| ring_vrf_accumulate_x_1 | 3.49 ms | 1.45 ms | 2.40x |
-| ring_vrf_accumulate_x_13 | 11.91 ms | 2.86 ms | 4.16x |
-| ring_vrf_accumulate_x_25 | 18.94 ms | 3.98 ms | 4.75x |
-| ring_vrf_accumulate_x_37 | 29.56 ms | 5.60 ms | 5.28x |
-| ring_vrf_accumulate_x_50 | 34.80 ms | 6.44 ms | 5.41x |
-| ring_vrf_commit | 23.71 us | 47.44 us | 0.50x |
-| ring_vrf_verify | 31.05 ms | 17.61 ms | 1.76x |
-| ring_vrf_verify_batch_x_1 | 31.09 ms | 19.06 ms | 1.63x |
-| ring_vrf_verify_batch_x_4 | 97.26 ms | 49.82 ms | 1.95x |
-| ring_vrf_verify_batch_x_8 | 185.58 ms | 100.66 ms | 1.84x |
-| ring_vrf_verify_batch_x_12 | 274.60 ms | 145.68 ms | 1.89x |
-| ring_vrf_verify_batch_x_16 | 363.28 ms | 180.66 ms | 2.01x |
+| ietf_vrf_verify | 2.10 ms | 598.77 us | 3.51x |
+| ring_vrf_accumulate_and_commit_x_1 | 3.15 ms | 1.19 ms | 2.64x |
+| ring_vrf_accumulate_and_commit_x_13 | 12.28 ms | 2.58 ms | 4.76x |
+| ring_vrf_accumulate_and_commit_x_25 | 19.12 ms | 4.04 ms | 4.73x |
+| ring_vrf_accumulate_and_commit_x_37 | 29.54 ms | 5.42 ms | 5.45x |
+| ring_vrf_accumulate_and_commit_x_50 | 34.77 ms | 6.86 ms | 5.07x |
+| ring_vrf_accumulate_x_1 | 3.11 ms | 1.35 ms | 2.30x |
+| ring_vrf_accumulate_x_13 | 11.98 ms | 2.77 ms | 4.32x |
+| ring_vrf_accumulate_x_25 | 19.07 ms | 4.22 ms | 4.52x |
+| ring_vrf_accumulate_x_37 | 29.54 ms | 5.10 ms | 5.79x |
+| ring_vrf_accumulate_x_50 | 34.75 ms | 6.43 ms | 5.40x |
+| ring_vrf_commit | 27.12 us | 40.35 us | 0.67x |
+| ring_vrf_verify | 28.37 ms | 14.58 ms | 1.95x |
+| ring_vrf_verify_batch_x_1 | 28.24 ms | 15.23 ms | 1.85x |
+| ring_vrf_verify_batch_x_4 | 46.59 ms | 20.52 ms | 2.27x |
+| ring_vrf_verify_batch_x_8 | 69.56 ms | 34.03 ms | 2.04x |
+| ring_vrf_verify_batch_x_12 | 89.44 ms | 42.04 ms | 2.13x |
+| ring_vrf_verify_batch_x_16 | 106.18 ms | 52.80 ms | 2.01x |

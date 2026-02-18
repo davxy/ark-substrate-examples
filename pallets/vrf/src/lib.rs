@@ -435,8 +435,6 @@ pub mod pallet {
         }
 
         pub(crate) fn ring_verify_batch_impl<S: RingSuite>(batch: &[RingProofBatchItem]) {
-            use ark_vrf::ring::Verifier;
-
             let verifier_key_raw = RingVerifierKey::<T>::get().unwrap();
             let verifier_key =
                 ark_vrf::ring::RingVerifierKey::<S>::deserialize_compressed_unchecked(
@@ -450,7 +448,7 @@ pub mod pallet {
                 max_ring_size as usize,
             );
 
-            // TODO: replace with true batching when available
+            let mut batch_verifier = ark_vrf::ring::BatchVerifier::<S>::new(verifier);
             for item in batch {
                 let input =
                     ark_vrf::Input::<S>::deserialize_compressed_unchecked(&item.input.0[..])
@@ -461,8 +459,9 @@ pub mod pallet {
                 let proof =
                     ark_vrf::ring::Proof::<S>::deserialize_compressed_unchecked(&item.proof.0[..])
                         .unwrap();
-                ark_vrf::Public::<S>::verify(input, output, [], &proof, &verifier).unwrap();
+                batch_verifier.push(input, output, [], &proof);
             }
+            batch_verifier.verify().unwrap();
         }
 
         pub(crate) fn commit_impl<S: RingSuite>() {
