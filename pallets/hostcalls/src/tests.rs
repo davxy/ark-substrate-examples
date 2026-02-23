@@ -425,8 +425,7 @@ fn make_bls_signature_args() -> (ArkScale<ark_bls12_381::G1Affine>, ArkScale<ark
     (pk.into(), msg_hash.into(), sig.into())
 }
 
-#[test]
-fn bls12_381_verify_bls_signature_valid() {
+fn bls12_381_verify_bls_signature_valid(direct: bool) {
     let (pk, msg_hash, sig) = make_bls_signature_args();
 
     new_test_ext().execute_with(|| {
@@ -435,12 +434,22 @@ fn bls12_381_verify_bls_signature_valid() {
             pk.encode(),
             msg_hash.encode(),
             sig.encode(),
+            direct,
         ));
     });
 }
 
 #[test]
-fn bls12_381_verify_bls_signature_invalid() {
+fn direct_bls12_381_verify_bls_signature_valid() {
+    bls12_381_verify_bls_signature_valid(true);
+}
+
+#[test]
+fn pairing_bls12_381_verify_bls_signature_valid() {
+    bls12_381_verify_bls_signature_valid(false);
+}
+
+fn bls12_381_verify_bls_signature_invalid(direct: bool) {
     let (pk, msg_hash, _sig) = make_bls_signature_args();
     // Use a random G1 point as a bogus signature
     let bad_sig: ArkScale<ark_bls12_381::G1Affine> =
@@ -453,8 +462,19 @@ fn bls12_381_verify_bls_signature_invalid() {
                 pk.encode(),
                 msg_hash.encode(),
                 bad_sig.encode(),
+                direct,
             ),
             DispatchError::Other("Invalid BLS signature")
         );
     });
+}
+
+#[test]
+fn direct_bls12_381_verify_bls_signature_invalid() {
+    bls12_381_verify_bls_signature_invalid(true);
+}
+
+#[test]
+fn pairing_bls12_381_verify_bls_signature_invalid() {
+    bls12_381_verify_bls_signature_invalid(false);
 }

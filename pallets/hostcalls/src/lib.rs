@@ -23,9 +23,9 @@ use ark_ec::{
 use ark_ff::One;
 use ark_scale::{
     hazmat::ArkScaleProjective,
-    scale::{Decode, Encode},
+    scale::{Decode, Encode, MaxEncodedLen},
 };
-use ark_std::vec::Vec;
+use ark_std::{vec, vec::Vec};
 
 pub use sp_crypto_ec_utils::{
     bls12_381 as sub_bls12_381, ed_on_bls12_377 as sub_ed_on_bls12_377,
@@ -86,11 +86,19 @@ fn pairing<P: Pairing>(a: Vec<u8>, b: Vec<u8>) {
     let _ = P::multi_pairing([a.0], [b.0]);
 }
 
-/// Verify a BLS signature by directly calling into the bls12-381 pairing hostcalls.
+/// Verify a BLS signature.
 ///
 /// Checks: e(signature, G2_generator) == e(public_key, message_hash)
 /// Via the equivalent: e(signature, G2_generator) * e(-public_key, message_hash) == 1
-fn verify_bls_signature(public_key: Vec<u8>, message_hash: Vec<u8>, signature: Vec<u8>) -> bool {
+///
+/// If `direct` is true, calls into the host functions directly.
+/// If `direct` is false, uses the `Pairing` interface (which calls the host functions under the hood).
+fn verify_bls_signature(
+    public_key: Vec<u8>,
+    message_hash: Vec<u8>,
+    signature: Vec<u8>,
+    direct: bool,
+) -> bool {
     let pk = ArkScale::<sub_bls12_381::G1Affine>::decode(&mut public_key.as_slice())
         .unwrap()
         .0;
@@ -101,20 +109,29 @@ fn verify_bls_signature(public_key: Vec<u8>, message_hash: Vec<u8>, signature: V
         .unwrap()
         .0;
 
-    type TargetField = <sub_bls12_381::Bls12_381 as Pairing>::TargetField;
+    let g2_gen = sub_bls12_381::G2Affine::generator();
 
-    let g1: ArkScaleHostCall<_> = vec![sig, -pk].into();
-    let g2: ArkScaleHostCall<_> = vec![sub_bls12_381::G2Affine::generator(), msg].into();
-    let g1 = g1.encode();
-    let g2 = g2.encode();
+    if direct {
+        type TargetField = <sub_bls12_381::Bls12_381 as Pairing>::TargetField;
 
-    let buf = sub_bls12_381::host_calls::bls12_381_multi_miller_loop(g1, g2).unwrap();
-    let buf = sub_bls12_381::host_calls::bls12_381_final_exponentiation(buf).unwrap();
+        let g1: ArkScaleHostCall<_> = vec![sig, -pk].into();
+        let g2: ArkScaleHostCall<_> = vec![g2_gen, msg].into();
+        let g1 = g1.encode();
+        let g2 = g2.encode();
 
-    let result = ArkScaleHostCall::<TargetField>::decode(&mut buf.as_slice())
-        .unwrap()
-        .0;
-    result.is_one()
+        let mut buf = vec![0u8; ArkScaleHostCall::<TargetField>::max_encoded_len()];
+        sub_bls12_381::host_calls::bls12_381_multi_miller_loop(&g1, &g2, &mut buf).unwrap();
+        sub_bls12_381::host_calls::bls12_381_final_exponentiation(&mut buf).unwrap();
+
+        let result = ArkScaleHostCall::<TargetField>::decode(&mut buf.as_slice())
+            .unwrap()
+            .0;
+        result.is_one()
+    } else {
+        sub_bls12_381::Bls12_381::multi_pairing([sig, -pk], [g2_gen, msg])
+            .0
+            .is_one()
+    }
 }
 
 #[frame_support::pallet]
@@ -162,7 +179,7 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                msm_sw::<sub_bls12_381::g1::Config>(bases, scalars);
+                msm_sw::<sub_bls12_381::G1Config>(bases, scalars);
             } else {
                 msm_sw::<ark_bls12_381::g1::Config>(bases, scalars);
             }
@@ -178,7 +195,7 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                mul_projective_sw::<sub_bls12_381::g1::Config>(base, scalar);
+                mul_projective_sw::<sub_bls12_381::G1Config>(base, scalar);
             } else {
                 mul_projective_sw::<ark_bls12_381::g1::Config>(base, scalar);
             }
@@ -194,7 +211,7 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                mul_affine_sw::<sub_bls12_381::g1::Config>(base, scalar);
+                mul_affine_sw::<sub_bls12_381::G1Config>(base, scalar);
             } else {
                 mul_affine_sw::<ark_bls12_381::g1::Config>(base, scalar);
             }
@@ -210,7 +227,7 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                msm_sw::<sub_bls12_381::g2::Config>(bases, scalars);
+                msm_sw::<sub_bls12_381::G2Config>(bases, scalars);
             } else {
                 msm_sw::<ark_bls12_381::g2::Config>(bases, scalars);
             }
@@ -226,7 +243,7 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                mul_projective_sw::<sub_bls12_381::g2::Config>(base, scalar);
+                mul_projective_sw::<sub_bls12_381::G2Config>(base, scalar);
             } else {
                 mul_projective_sw::<ark_bls12_381::g2::Config>(base, scalar);
             }
@@ -242,7 +259,7 @@ pub mod pallet {
             optimized: bool,
         ) -> DispatchResult {
             if optimized {
-                mul_affine_sw::<sub_bls12_381::g2::Config>(base, scalar);
+                mul_affine_sw::<sub_bls12_381::G2Config>(base, scalar);
             } else {
                 mul_affine_sw::<ark_bls12_381::g2::Config>(base, scalar);
             }
@@ -412,9 +429,10 @@ pub mod pallet {
             public_key: Vec<u8>,
             message_hash: Vec<u8>,
             signature: Vec<u8>,
+            direct: bool,
         ) -> DispatchResult {
             ensure!(
-                verify_bls_signature(public_key, message_hash, signature),
+                verify_bls_signature(public_key, message_hash, signature, direct),
                 DispatchError::Other("Invalid BLS signature")
             );
             Ok(())
