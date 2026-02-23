@@ -1,9 +1,12 @@
 use crate::{
     mock::{new_test_ext, ArkHostcalls, RuntimeOrigin},
     utils::*,
+    ArkScale,
 };
+use ark_ec::{AffineRepr, CurveGroup};
 use ark_scale::scale::Encode;
-use frame_support::assert_ok;
+use ark_std::{test_rng, UniformRand};
+use frame_support::{assert_err, assert_ok, pallet_prelude::DispatchError};
 
 const MSM_ITEMS: u32 = 256;
 const SCALAR_WORDS: u32 = 3;
@@ -400,4 +403,58 @@ fn ark_ed_on_bls12_381_bandersnatch_mul_affine_te() {
 #[test]
 fn sub_ed_on_bls12_381_bandersnatch_mul_affine_te() {
     ed_on_bls12_381_bandersnatch_mul_affine_te(true)
+}
+
+// ---------------------------------------------
+// BLS12-381 BLS signature verification
+// ---------------------------------------------
+
+// Construct a valid BLS signature tuple (pk, msg_hash, sig) satisfying:
+//   e(sig, G2_gen) == e(pk, msg_hash)
+// by picking random scalars s, t and using bilinearity:
+//   pk = s * G1_gen, msg_hash = t * G2_gen, sig = (s * t) * G1_gen
+fn make_bls_signature_args() -> (ArkScale<ark_bls12_381::G1Affine>, ArkScale<ark_bls12_381::G2Affine>, ArkScale<ark_bls12_381::G1Affine>) {
+    let rng = &mut test_rng();
+    let s = ark_bls12_381::Fr::rand(rng);
+    let t = ark_bls12_381::Fr::rand(rng);
+
+    let pk = (ark_bls12_381::G1Affine::generator() * s).into_affine();
+    let msg_hash = (ark_bls12_381::G2Affine::generator() * t).into_affine();
+    let sig = (ark_bls12_381::G1Affine::generator() * (s * t)).into_affine();
+
+    (pk.into(), msg_hash.into(), sig.into())
+}
+
+#[test]
+fn bls12_381_verify_bls_signature_valid() {
+    let (pk, msg_hash, sig) = make_bls_signature_args();
+
+    new_test_ext().execute_with(|| {
+        assert_ok!(ArkHostcalls::bls12_381_verify_bls_signature(
+            RuntimeOrigin::none(),
+            pk.encode(),
+            msg_hash.encode(),
+            sig.encode(),
+        ));
+    });
+}
+
+#[test]
+fn bls12_381_verify_bls_signature_invalid() {
+    let (pk, msg_hash, _sig) = make_bls_signature_args();
+    // Use a random G1 point as a bogus signature
+    let bad_sig: ArkScale<ark_bls12_381::G1Affine> =
+        ark_bls12_381::G1Affine::rand(&mut test_rng()).into();
+
+    new_test_ext().execute_with(|| {
+        assert_err!(
+            ArkHostcalls::bls12_381_verify_bls_signature(
+                RuntimeOrigin::none(),
+                pk.encode(),
+                msg_hash.encode(),
+                bad_sig.encode(),
+            ),
+            DispatchError::Other("Invalid BLS signature")
+        );
+    });
 }

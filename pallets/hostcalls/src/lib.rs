@@ -20,7 +20,11 @@ use ark_ec::{
     twisted_edwards::{Affine as TEAffine, Projective as TEProjective, TECurveConfig},
     AffineRepr,
 };
-use ark_scale::{hazmat::ArkScaleProjective, scale::Decode};
+use ark_ff::One;
+use ark_scale::{
+    hazmat::ArkScaleProjective,
+    scale::{Decode, Encode},
+};
 use ark_std::vec::Vec;
 
 pub use sp_crypto_ec_utils::{
@@ -30,7 +34,10 @@ pub use sp_crypto_ec_utils::{
 
 pub type ScalarFieldFor<AffineT> = <AffineT as AffineRepr>::ScalarField;
 
-type ArkScale<T> = ark_scale::ArkScale<T>;
+// Compressed and validated. Used to decode data from untrusted domain (e.g. extrinsics).
+type ArkScale<T> = ark_scale::ArkScale<T, { ark_scale::WIRE }>;
+// Uncompressed and not validated. Used to pass data from/to trusted domain (e.g. host calls).
+type ArkScaleHostCall<T> = ark_scale::ArkScale<T, { ark_scale::HOST_CALL }>;
 
 pub use pallet::*;
 pub use weights::*;
@@ -77,6 +84,37 @@ fn pairing<P: Pairing>(a: Vec<u8>, b: Vec<u8>) {
     let a = ArkScale::<P::G1Affine>::decode(&mut a.as_slice()).unwrap();
     let b = ArkScale::<P::G2Affine>::decode(&mut b.as_slice()).unwrap();
     let _ = P::multi_pairing([a.0], [b.0]);
+}
+
+/// Verify a BLS signature by directly calling into the bls12-381 pairing hostcalls.
+///
+/// Checks: e(signature, G2_generator) == e(public_key, message_hash)
+/// Via the equivalent: e(signature, G2_generator) * e(-public_key, message_hash) == 1
+fn verify_bls_signature(public_key: Vec<u8>, message_hash: Vec<u8>, signature: Vec<u8>) -> bool {
+    let pk = ArkScale::<sub_bls12_381::G1Affine>::decode(&mut public_key.as_slice())
+        .unwrap()
+        .0;
+    let msg = ArkScale::<sub_bls12_381::G2Affine>::decode(&mut message_hash.as_slice())
+        .unwrap()
+        .0;
+    let sig = ArkScale::<sub_bls12_381::G1Affine>::decode(&mut signature.as_slice())
+        .unwrap()
+        .0;
+
+    type TargetField = <sub_bls12_381::Bls12_381 as Pairing>::TargetField;
+
+    let g1: ArkScaleHostCall<_> = vec![sig, -pk].into();
+    let g2: ArkScaleHostCall<_> = vec![sub_bls12_381::G2Affine::generator(), msg].into();
+    let g1 = g1.encode();
+    let g2 = g2.encode();
+
+    let buf = sub_bls12_381::host_calls::bls12_381_multi_miller_loop(g1, g2).unwrap();
+    let buf = sub_bls12_381::host_calls::bls12_381_final_exponentiation(buf).unwrap();
+
+    let result = ArkScaleHostCall::<TargetField>::decode(&mut buf.as_slice())
+        .unwrap()
+        .0;
+    result.is_one()
 }
 
 #[frame_support::pallet]
@@ -364,6 +402,21 @@ pub mod pallet {
             } else {
                 mul_affine_te::<ark_ed_on_bls12_381_bandersnatch::EdwardsConfig>(base, scalar);
             }
+            Ok(())
+        }
+
+        #[pallet::call_index(7)]
+        #[pallet::weight(Weight::from_all(DEFAULT_WEIGHT))]
+        pub fn bls12_381_verify_bls_signature(
+            _: OriginFor<T>,
+            public_key: Vec<u8>,
+            message_hash: Vec<u8>,
+            signature: Vec<u8>,
+        ) -> DispatchResult {
+            ensure!(
+                verify_bls_signature(public_key, message_hash, signature),
+                DispatchError::Other("Invalid BLS signature")
+            );
             Ok(())
         }
     }
