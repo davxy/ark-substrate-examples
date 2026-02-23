@@ -809,9 +809,9 @@ dependencies = [
 
 [[package]]
 name = "ark-vrf"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "565f3956f321665cb08e6309c0ca340952f2c6d729407a06dc0c485a8812a909"
+checksum = "b722df2194fd06cd069bb3cb29cd4bfce8e023b6cace34d314ee2cf4bd4df9b5"
 dependencies = [
  "ark-bls12-381 0.5.0",
  "ark-ec 0.5.0",
@@ -823,7 +823,7 @@ dependencies = [
  "rand_chacha 0.3.1",
  "rayon",
  "sha2 0.10.9",
- "w3f-ring-proof 0.0.5",
+ "w3f-ring-proof 0.0.6",
  "zeroize",
 ]
 
@@ -6444,7 +6444,7 @@ dependencies = [
 name = "pallet-ark-vrf"
 version = "0.1.0"
 dependencies = [
- "ark-vrf 0.2.0",
+ "ark-vrf 0.2.1",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
@@ -12441,9 +12441,9 @@ dependencies = [
 
 [[package]]
 name = "w3f-plonk-common"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "488384ac7f585606fb72451da79ec74cd07280c38ab6a05da1d8336c3a8447db"
+checksum = "077db25196f87773d7f0784c0ea5b11f18f38d336fa25c24bc67d7936af05d7a"
 dependencies = [
  "ark-ec 0.5.0",
  "ark-ff 0.5.0",
@@ -12474,9 +12474,9 @@ dependencies = [
 
 [[package]]
 name = "w3f-ring-proof"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e3f103aeac6badf788d02a23443bedcb79ad49ac55e266e47dd6ee0cac3a443"
+checksum = "a3afac5d485a6eed7c1762be4b7b70a6f9b346bd6eebe485f48b7d909a6773f5"
 dependencies = [
  "ark-ec 0.5.0",
  "ark-ff 0.5.0",
@@ -12486,7 +12486,7 @@ dependencies = [
  "ark-transcript",
  "rayon",
  "w3f-pcs 0.0.5",
- "w3f-plonk-common 0.0.5",
+ "w3f-plonk-common 0.0.6",
 ]
 
 [[package]]

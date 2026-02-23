@@ -24,7 +24,7 @@ log = { workspace = true }
 sp-crypto-ec-utils = { workspace = true }
 
 # VRF crypto
-ark-vrf = { version = "0.2.0", default-features = false, features = ["bandersnatch", "ring", "asm"] }
+ark-vrf = { version = "0.2.1", default-features = false, features = ["bandersnatch", "ring", "asm"] }
 
 [dev-dependencies]
 sp-io = { workspace = true, default-features = true }
