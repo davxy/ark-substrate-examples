@@ -81,7 +81,7 @@ mod benchmarks {
         let (base, scalar) = utils::make_mul_affine_args::<ark_bls12_381::G1Affine>();
 
         #[extrinsic_call]
-        bls12_381_mul_affine_g1(RawOrigin::None, base.encode(), scalar.encode(), false);
+        bls12_381_mul_affine_g1(RawOrigin::None, base.encode(), scalar.encode(), true);
     }
 
     #[benchmark]
@@ -129,7 +129,7 @@ mod benchmarks {
         let (base, scalar) = utils::make_mul_affine_args::<ark_bls12_381::G2Affine>();
 
         #[extrinsic_call]
-        bls12_381_mul_affine_g2(RawOrigin::None, base.encode(), scalar.encode(), false);
+        bls12_381_mul_affine_g2(RawOrigin::None, base.encode(), scalar.encode(), true);
     }
 
     // ---------------------------------------------
